@@ -1,12 +1,16 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { HSKLevel, VocabularyWord, PracticeMode, SentenceExample, ErrorCorrectionExercise, SentenceScrambleExercise, SentenceFeedback, WritingExercise, SentenceOrderingExercise } from '../types';
 import { HSK_VOCABULARY } from '../data/hsk-vocabulary';
+import { HSK4_SENTENCE_ORDERING_EXERCISES as H41001_EXERCISES } from '../data/pailiesunxu/H41001';
+import { HSK4_SENTENCE_ORDERING_EXERCISES as H41002_EXERCISES } from '../data/pailiesunxu/H41002';
+import { HSK4_SENTENCE_ORDERING_EXERCISES as H41003_EXERCISES } from '../data/pailiesunxu/H41003';
 import { HSK4_SENTENCE_ORDERING_EXERCISES as H41327_EXERCISES } from '../data/pailiesunxu/H41327';
 import { HSK4_SENTENCE_ORDERING_EXERCISES as H41328_EXERCISES } from '../data/pailiesunxu/H41328';
 import { HSK4_SENTENCE_ORDERING_EXERCISES as H41329_EXERCISES } from '../data/pailiesunxu/H41329';
 import { HSK4_SENTENCE_ORDERING_EXERCISES as H41330_EXERCISES } from '../data/pailiesunxu/H41330';
+import { HSK4_SENTENCE_ORDERING_EXERCISES as H41332_EXERCISES } from '../data/pailiesunxu/H41332';
 
-const ALL_HSK4_SENTENCE_ORDERING_EXERCISES = [...H41327_EXERCISES, ...H41328_EXERCISES, ...H41329_EXERCISES, ...H41330_EXERCISES];
+const ALL_HSK4_SENTENCE_ORDERING_EXERCISES = [...H41001_EXERCISES, ...H41002_EXERCISES, ...H41003_EXERCISES, ...H41327_EXERCISES, ...H41328_EXERCISES, ...H41329_EXERCISES, ...H41330_EXERCISES, ...H41332_EXERCISES];
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
 
 const shuffleArray = <T>(array: T[]): T[] => {

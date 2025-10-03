@@ -351,7 +351,7 @@ const App: React.FC = () => {
               ປ່ຽນລະດັບ HSK
             </button>
          )}
-         <p className="text-slate-500 text-sm mt-4">ຕິດຕາມ tiktok: peilaoshi_ </p>
+         <p className="text-slate-1800 text-sm mt-4">ຕິດຕາມ tiktok: peilaoshi_ </p>
       </footer>
     </div>
   );
