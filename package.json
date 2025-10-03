@@ -1,5 +1,5 @@
 {
-  "name": "ຮຽນຄຳສັບ-hsk1-6-ເວີຊັ່ນ1.3",
+  "name": "ຮຽນຄຳສັບ-hsk1-6-ເວີຊັ່ນ-2.0",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -11,8 +11,7 @@
   "dependencies": {
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "@google/genai": "^1.19.0",
-    "idb": "^8.0.0"
+    "@google/genai": "^1.19.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

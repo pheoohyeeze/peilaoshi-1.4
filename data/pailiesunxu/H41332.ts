@@ -40,7 +40,7 @@ export const HSK4_SENTENCE_ORDERING_EXERCISES: SentenceOrderingExercise[] = [
   {
     id: 60,
     sentences: {
-      a: '不过这里以前比较安静',
+      a: '不过以前比较安静',
       b: '我对这里当然熟悉了，我原来就住这儿附近',
       c: '不像现在这么热闹',
     },

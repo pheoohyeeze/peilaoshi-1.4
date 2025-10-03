@@ -1,4 +1,3 @@
-
 export type HSKLevel = 1 | 2 | 3 | 4 | 5 | 6;
 
 export interface VocabularyWord {
@@ -8,7 +7,7 @@ export interface VocabularyWord {
   audioUrl?: string;
 }
 
-export type PracticeMode = 'example' | 'correction' | 'scramble' | 'building' | 'writing' | 'ordering';
+export type PracticeMode = 'example' | 'correction' | 'scramble' | 'building' | 'writing' | 'ordering' | 'translation_choice' | 'build_from_translation' | 'matching' | 'conjunction';
 
 export interface SentenceExample {
     sentence: string;
@@ -46,11 +45,56 @@ export interface SentenceOrderingExercise {
   correctOrder: string;
 }
 
-export interface User {
-  id?: number;
-  username: string;
-  phone: string;
-  email: string;
-  password?: string; // Should not be passed around the app after auth
-  isVip?: boolean;
+export interface TranslationChoiceQuestion {
+  word: VocabularyWord;
+  options: string[];
+  correctAnswer: string;
+}
+
+export interface TranslationChoiceQuiz {
+  questions: TranslationChoiceQuestion[];
+}
+
+export interface WordBuildingQuestion {
+  word: VocabularyWord;
+  options: string[];
+  correctAnswer: string;
+}
+
+export interface WordBuildingQuiz {
+  questions: WordBuildingQuestion[];
+}
+
+export interface MatchingQuiz {
+  rounds: VocabularyWord[][];
+}
+
+export interface ConjunctionExercise {
+    sentenceA: string;
+    sentenceB: string;
+    conjunctionOptions: string[];
+    correctConjunction: string;
+    correctSentence: string;
+}
+
+export interface WordProgress {
+  score: number;
+  lastReviewed: number;
+}
+
+export type ProgressData = Record<string, WordProgress>;
+
+// New types for Activity History
+export type ActivityType = 'lesson_start' | 'quiz_complete' | 'practice_complete';
+
+export interface ActivityLogEntry {
+  id: number; // timestamp
+  type: ActivityType;
+  level: HSKLevel;
+  lesson: number;
+  mode?: PracticeMode;
+  word?: string; // character
+  score?: number;
+  total?: number;
+  isCorrect?: boolean;
 }

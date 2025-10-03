@@ -1,7 +1,7 @@
 import type { VocabularyWord } from '../types';
 
 export const HSK6_WORDS: VocabularyWord[] = [
-    { "character": "轮廓", "pinyin": "lún kuò", "translation": "ໂຄງຮ່າງ" },
+     { "character": "轮廓", "pinyin": "lún kuò", "translation": "ໂຄງຮ່າງ" },
 { "character": "轮胎", "pinyin": "lún tāi", "translation": "ຢາງລົດ" },
 { "character": "论坛", "pinyin": "lùn tán", "translation": "ເວທີສົນທະນາ" },
 { "character": "论证", "pinyin": "lùn zhèng", "translation": "ການພິສູດ" },
@@ -1297,7 +1297,7 @@ export const HSK6_WORDS: VocabularyWord[] = [
 { "character": "遵循", "pinyin": "zūn xún", "translation": "ການປະຕິບັດຕາມ" },
 { "character": "尊严", "pinyin": "zūn yán", "translation": "ກຽດສັກສີ" },
 { "character": "作弊", "pinyin": "zuò bì", "translation": "ການສໍ້ໂກງ" },
-{ "character": "作废", "pinyin": "zuò fèi", "translation": "ການຍົກເລີກ" },
+{ "character": "作废", "pinyin": "zuò fèi", "translation": "ການຍົກເລີກ, ໂມຄະ" },
 { "character": "作风", "pinyin": "zuò fēng", "translation": "ແບບ" },
 { "character": "作息", "pinyin": "zuò xī", "translation": "ການເຮັດວຽກແລະພັກຜ່ອນ" },
 { "character": "座右铭", "pinyin": "zuò yòu míng", "translation": "ຄະຕິພົດ" },

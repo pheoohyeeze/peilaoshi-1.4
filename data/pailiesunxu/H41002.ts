@@ -51,7 +51,7 @@ export const HSK4_SENTENCE_ORDERING_EXERCISES: SentenceOrderingExercise[] = [
     sentences: {
       a: '就受到人们的普遍欢迎',
       b: '当时的人们没想到它会给环境带来严重的污染',
-      c: '100年前，塑料一出现',
+      c: '100 年前，塑料一出现',
     },
     correctOrder: 'CAB',
   },
@@ -69,7 +69,7 @@ export const HSK4_SENTENCE_ORDERING_EXERCISES: SentenceOrderingExercise[] = [
     sentences: {
       a: '“明”由两个字组成',
       b: '左边的“日”代表太阳，而右边的“月”代表月亮',
-      c: '所以“明”在汉语中表示有光亮的意思',
+      c: '所以以“明”在汉语中表示有光亮的意思',
     },
     correctOrder: 'ABC',
   },

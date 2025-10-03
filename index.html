@@ -4,23 +4,47 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ຜູ້ຊ່ວຍສອນຄຳສັບ HSK</title>
+    <title>ຮຽນຄຳສັບ HSK</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
+        darkMode: 'class', // Enable dark mode using a class
         theme: {
           extend: {
             colors: {
-              'brand-primary': '#10b981',
-              'brand-secondary': '#059669',
-              'brand-light': '#d1fae5',
-              'brand-dark': '#047857',
+              'brand-primary': '#3b82f6', // blue-500
+              'brand-secondary': '#2563eb', // blue-600
+              'brand-light': '#dbeafe', // blue-100
+              'brand-dark': '#1e40af', // blue-800
             },
             fontFamily: {
               sans: ['Inter', 'Noto Sans Lao', 'Noto Sans SC', 'sans-serif'],
             },
+            keyframes: {
+                'fade-in': {
+                    '0%': { opacity: '0', transform: 'translateY(10px)' },
+                    '100%': { opacity: '1', transform: 'translateY(0)' },
+                },
+                'shake': {
+                    '0%, 100%': { transform: 'translateX(0)' },
+                    '10%, 30%, 50%, 70%, 90%': { transform: 'translateX(-5px)' },
+                    '20%, 40%, 60%, 80%': { transform: 'translateX(5px)' },
+                }
+            },
+            animation: {
+                'fade-in': 'fade-in 0.5s ease-out forwards',
+                'shake': 'shake 0.5s ease-in-out forwards',
+            }
           },
         },
+      }
+    </script>
+     <script>
+      // On page load or when changing themes, best to add inline in `head` to avoid FOUC
+      if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark')
+      } else {
+        document.documentElement.classList.remove('dark')
       }
     </script>
      <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,13 +56,12 @@
     "react": "https://aistudiocdn.com/react@^19.1.1",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
     "react/": "https://aistudiocdn.com/react@^19.1.1/",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.19.0",
-    "idb": "https://aistudiocdn.com/idb@^8.0.0"
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.19.0"
   }
 }
 </script>
 </head>
-  <body class="bg-slate-900">
+  <body class="bg-gray-100 dark:bg-slate-900">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>
