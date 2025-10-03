@@ -1,6 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { HSKLevel, VocabularyWord, PracticeMode, SentenceExample, ErrorCorrectionExercise, SentenceScrambleExercise, SentenceFeedback, WritingExercise, SentenceOrderingExercise } from '../types';
-import { HSK_VOCABULARY } from '../data/hsk-vocabulary';
+import { getVocabularyByLevel } from './dataService';
 import { HSK4_SENTENCE_ORDERING_EXERCISES as H41001_EXERCISES } from '../data/pailiesunxu/H41001';
 import { HSK4_SENTENCE_ORDERING_EXERCISES as H41002_EXERCISES } from '../data/pailiesunxu/H41002';
 import { HSK4_SENTENCE_ORDERING_EXERCISES as H41003_EXERCISES } from '../data/pailiesunxu/H41003';
@@ -24,7 +24,7 @@ const shuffleArray = <T>(array: T[]): T[] => {
 
 export const fetchHSKVocabulary = async (level: HSKLevel): Promise<VocabularyWord[]> => {
   try {
-    const wordsForLevel = HSK_VOCABULARY[level];
+    const wordsForLevel = await getVocabularyByLevel(level);
     if (!wordsForLevel || wordsForLevel.length === 0) {
         throw new Error(`ບໍ່ພົບຄຳສັບສຳລັບ HSK ລະດັບ ${level}.`);
     }

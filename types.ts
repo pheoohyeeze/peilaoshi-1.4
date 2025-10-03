@@ -45,3 +45,12 @@ export interface SentenceOrderingExercise {
   };
   correctOrder: string;
 }
+
+export interface User {
+  id?: number;
+  username: string;
+  phone: string;
+  email: string;
+  password?: string; // Should not be passed around the app after auth
+  isVip?: boolean;
+}
