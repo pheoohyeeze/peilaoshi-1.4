@@ -3,7 +3,7 @@ import type { HSKLevel, VocabularyWord, PracticeMode, ProgressData, ActivityLogE
 import { fetchHSKVocabularyForLesson, generatePracticeExercise, getSentenceFeedback, getEssayFeedback, generateTranslationChoiceQuiz, generateWordBuildingQuiz, generateMatchingQuiz } from './services/geminiService';
 import { getProgress, updateWordMastery } from './services/progressService';
 import { getActivityHistory, logActivity } from './services/activityLogService';
-import { getUser, User } from './services/adminService';
+import { getUser, User, deregisterDevice } from './services/adminService';
 import { HSK_LEVELS } from './constants';
 import { HSK_VOCABULARY } from './data/hsk-vocabulary';
 import HSKLevelSelector from './components/HSKLevelSelector';
@@ -13,6 +13,8 @@ import LoadingSpinner from './components/LoadingSpinner';
 import PracticeView from './components/PracticeView';
 import Auth from './components/Auth';
 import ProgressView from './components/ProgressView';
+import VIPPage from './components/VIPPage';
+import QRCodePage from './components/QRCodePage';
 import ActivityHistoryView from './components/ActivityHistoryView';
 import AdminDashboard from './components/AdminDashboard';
 import { 
@@ -37,6 +39,15 @@ type CurrentUser = (Omit<User, 'password'> & { isAdmin: boolean });
 interface SearchResultsProps {
   results: SearchResultWord[];
 }
+
+const getDeviceId = () => {
+    let deviceId = localStorage.getItem('hsk-device-id');
+    if (!deviceId) {
+        deviceId = Date.now().toString(36) + Math.random().toString(36).substring(2);
+        localStorage.setItem('hsk-device-id', deviceId);
+    }
+    return deviceId;
+};
 
 const SearchResults: React.FC<SearchResultsProps> = ({ results }) => {
   if (results.length === 0) {
@@ -102,6 +113,8 @@ const App: React.FC = () => {
   const [progress, setProgress] = useState<ProgressData>({});
   const [showProgressView, setShowProgressView] = useState(false);
   const [activityHistory, setActivityHistory] = useState<ActivityLogEntry[]>([]);
+  const [showVipPage, setShowVipPage] = useState(false);
+  const [showQRCodePage, setShowQRCodePage] = useState(false);
   const [showActivityHistory, setShowActivityHistory] = useState(false);
 
 
@@ -123,7 +136,7 @@ const App: React.FC = () => {
     }
   }, []);
   
-  const handleLogActivity = useCallback((entry: Omit<ActivityLogEntry, 'id'>) => {
+  const handleLogActivity = useCallback((entry: Omit<ActivityLogEntry, 'id' | 'username'>) => {
     if (!currentUser?.username) return;
     const updatedHistory = logActivity(currentUser.username, entry);
     setActivityHistory(updatedHistory);
@@ -137,6 +150,11 @@ const App: React.FC = () => {
       if (!userData.isAdmin) {
         setProgress(getProgress(username));
         setActivityHistory(getActivityHistory(username));
+        // Log the login event, but don't re-log if it's just a page refresh
+        const lastActivity = getActivityHistory(username)[0];
+        if (!lastActivity || lastActivity.type !== 'login' || (Date.now() - lastActivity.id > 5000)) {
+            handleLogActivity({ type: 'login' });
+        }
       }
     } else {
       // Handle user not found case, maybe log them out
@@ -145,6 +163,9 @@ const App: React.FC = () => {
   };
 
   const handleLogout = () => {
+    if (currentUser) {
+        deregisterDevice(currentUser.username, getDeviceId());
+    }
     sessionStorage.removeItem('hsk-user');
     setCurrentUser(null);
     setProgress({});
@@ -157,6 +178,10 @@ const App: React.FC = () => {
     const updatedProgress = updateWordMastery(currentUser.username, character, outcome);
     setProgress(updatedProgress);
   }, [currentUser]);
+
+  const handleVipLockClick = () => {
+    setShowVipPage(true);
+  };
 
 
   const toggleTheme = () => {
@@ -272,7 +297,7 @@ const App: React.FC = () => {
   const handlePracticeSelect = useCallback(async (mode: PracticeMode) => {
       const isVipRequired = (selectedLevel && selectedLevel >= 4 && vipModes.includes(mode));
       if (isVipRequired && !currentUser?.isVip) {
-        alert('ຜູ້ໃຊ້vipເທົ່ານັ້ນຈື່ງໃຊ້ໄດ້. ທ່ານສາມາດອັບເກັດVIP ຫຼື ສັ່ງປື້ມແບບຮຽນເພື່ອປົດລ໊ອກVIP');
+        handleVipLockClick();
         return;
       }
       
@@ -455,7 +480,7 @@ const App: React.FC = () => {
     );
 
     if (!selectedLesson) {
-        return <LessonSelector level={selectedLevel} onSelectLesson={handleLessonSelect} onBack={backToLevelSelector} progress={progress} currentUser={currentUser} />;
+        return <LessonSelector level={selectedLevel} onSelectLesson={handleLessonSelect} onBack={backToLevelSelector} progress={progress} currentUser={currentUser} onVipLockClick={handleVipLockClick} />;
     }
 
     if (isPracticeLoading) return <LoadingSpinner message="ກຳລັງສ້າງແບບຝຶກຫັດ..." />;
@@ -509,7 +534,7 @@ const App: React.FC = () => {
                     <span>{label}</span>
                     {isDisabled && (
                         <div className="absolute top-1.5 right-1.5 flex items-center gap-1">
-                            <span className="font-bold text-blue-500 dark:text-blue-400 text-xs">VIP</span>
+                            <span className="font-bold text-yellow-500 dark:text-yellow-400 text-xs">VIP</span>
                             <LockClosedIcon className="w-4 h-4 text-yellow-500 dark:text-yellow-400" />
                         </div>
                     )}
@@ -541,6 +566,16 @@ const App: React.FC = () => {
           onClose={() => setShowActivityHistory(false)}
         />
       )}
+      {showVipPage && (
+        <VIPPage 
+            onClose={() => setShowVipPage(false)} 
+            onPurchaseClick={() => {
+              setShowVipPage(false);
+              setShowQRCodePage(true);
+            }}
+        />
+      )}
+      {showQRCodePage && <QRCodePage onClose={() => setShowQRCodePage(false)} />}
       <header className="w-full max-w-4xl mx-auto flex items-center justify-between mb-8">
         <div className="flex-1"></div>
         <div className="flex-1 flex justify-center items-center gap-4">
@@ -605,7 +640,7 @@ const App: React.FC = () => {
             </button>
          )}
          <p className="text-slate-1800 dark:text-slate-400 text-sm mt-4">ຕິດຕາມ tiktok: peilaoshi_ </p>
-         <p className="text-slate-1800 dark:text-slate-400 text-sm mt-4"> ສັ່ງຊື້ປື້ມຮຽນແບບ ແລະ ຄຳສັບ HSK1-6 ໄດ້ທີ: WeChat: Pheoohyeeze33 </p>
+         <p className="text-slate-1800 dark:text-slate-400 text-sm mt-4"> ສັ່ງຊື້ປື້ມແບບຮຽນ ແລະ ຄຳສັບ HSK1-6 ໄດ້ທີ: WeChat: Pheoohyeeze33 </p>
          <p className="text-slate-1800 dark:text-slate-400 text-sm mt-4"> ຂໍຂອບໃຈທຸກທ່ານ </p>
          
 

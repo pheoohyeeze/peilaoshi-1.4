@@ -3,7 +3,7 @@ import type { ActivityLogEntry, PracticeMode } from '../types';
 import {
     XCircleIcon, BookOpenIcon, LightBulbIcon, ShieldExclamationIcon, ArrowsRightLeftIcon,
     ChatBubbleLeftRightIcon, QuestionMarkCircleIcon, SquaresPlusIcon, LinkIcon, PuzzlePieceIcon,
-    QueueListIcon, PencilIcon, ChartBarIcon
+    QueueListIcon, PencilIcon, ChartBarIcon, UserPlusIcon, KeyIcon
 } from './IconComponents';
 
 interface ActivityHistoryViewProps {
@@ -28,6 +28,8 @@ const IconMap: Record<string, React.FC<{className?: string}>> = {
     lesson_start: BookOpenIcon,
     quiz_complete: ChartBarIcon,
     practice_complete: LightBulbIcon,
+    login: KeyIcon,
+    register: UserPlusIcon,
     example: LightBulbIcon,
     correction: ShieldExclamationIcon,
     scramble: ArrowsRightLeftIcon,
@@ -59,6 +61,14 @@ const ActivityHistoryView: React.FC<ActivityHistoryViewProps> = ({ onClose, hist
         const Icon = IconMap[entry.mode || entry.type] || BookOpenIcon;
 
         switch (entry.type) {
+            case 'register':
+                title = 'ລົງທະບຽນສຳເລັດ';
+                details = 'ເລີ່ມຕົ້ນການເດີນທາງຮຽນຮູ້ຂອງທ່ານ!';
+                break;
+            case 'login':
+                title = 'ເຂົ້າສູ່ລະບົບສຳເລັດ';
+                details = 'ຍິນດີຕ້ອນຮັບກັບມາ!';
+                break;
             case 'lesson_start':
                 title = `ເລີ່ມບົດຮຽນ ${entry.lesson}`;
                 details = `HSK ${entry.level}`;

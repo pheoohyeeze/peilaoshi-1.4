@@ -1,9 +1,19 @@
 import React, { useState } from 'react';
 import { UserIcon, LockClosedIcon, EnvelopeIcon, PhoneIcon } from './IconComponents';
+import { loginUser } from '../services/adminService';
 
 interface AuthProps {
   onLoginSuccess: (username: string) => void;
 }
+
+const getDeviceId = () => {
+    let deviceId = localStorage.getItem('hsk-device-id');
+    if (!deviceId) {
+        deviceId = Date.now().toString(36) + Math.random().toString(36).substring(2);
+        localStorage.setItem('hsk-device-id', deviceId);
+    }
+    return deviceId;
+};
 
 const Auth: React.FC<AuthProps> = ({ onLoginSuccess }) => {
   const [activeTab, setActiveTab] = useState('login');
@@ -52,7 +62,7 @@ const Auth: React.FC<AuthProps> = ({ onLoginSuccess }) => {
           }
       }
 
-      users[username] = { password, email, phone };
+      users[username] = { password, email, phone, devices: [] };
       localStorage.setItem('hsk-users', JSON.stringify(users));
       setSuccess('ລົງທະບຽນສຳເລັດ! ກະລຸນາເຂົ້າສູ່ລະບົບ.');
       setActiveTab('login');
@@ -72,15 +82,13 @@ const Auth: React.FC<AuthProps> = ({ onLoginSuccess }) => {
       return;
     }
 
-    try {
-      const users = JSON.parse(localStorage.getItem('hsk-users') || '{}');
-      if (users[username] && users[username].password === password) {
-        onLoginSuccess(username);
-      } else {
-        setError('ຊື່ຜູ້ໃຊ້ ຫຼື ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ.');
-      }
-    } catch (err) {
-      setError('ເກີດຂໍ້ຜິດພາດໃນການເຂົ້າສູ່ລະບົບ.');
+    const deviceId = getDeviceId();
+    const result = loginUser(username, password, deviceId);
+
+    if (result.success) {
+      onLoginSuccess(username);
+    } else {
+      setError(result.message || 'ເກີດຂໍ້ຜິດພາດໃນການເຂົ້າສູ່ລະບົບ.');
     }
   };
 

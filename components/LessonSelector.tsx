@@ -15,6 +15,7 @@ interface LessonSelectorProps {
   onBack: () => void;
   progress: ProgressData;
   currentUser: CurrentUser;
+  onVipLockClick: () => void;
 }
 
 const getWordsForLesson = (level: HSKLevel, lesson: number): VocabularyWord[] => {
@@ -25,7 +26,7 @@ const getWordsForLesson = (level: HSKLevel, lesson: number): VocabularyWord[] =>
 };
 
 
-const LessonSelector: React.FC<LessonSelectorProps> = ({ level, onSelectLesson, onBack, progress, currentUser }) => {
+const LessonSelector: React.FC<LessonSelectorProps> = ({ level, onSelectLesson, onBack, progress, currentUser, onVipLockClick }) => {
   const numberOfLessons = getNumberOfLessons(level);
   const totalWords = getTotalWordsForLevel(level);
   const lessons = Array.from({ length: numberOfLessons }, (_, i) => i + 1);
@@ -83,7 +84,7 @@ const LessonSelector: React.FC<LessonSelectorProps> = ({ level, onSelectLesson, 
           
           const handleLessonClick = () => {
             if (isLocked) {
-              alert('ຜູ້ໃຊ້vipເທົ່ານັ້ນຈື່ງໃຊ້ໄດ້. ທ່ານສາມາດອັບເກັດVIP ຫຼື ສັ່ງປື້ມແບບຮຽນເພື່ອປົດລ໊ອກVIP');
+              onVipLockClick();
             } else {
               onSelectLesson(lesson);
             }
@@ -112,7 +113,7 @@ const LessonSelector: React.FC<LessonSelectorProps> = ({ level, onSelectLesson, 
               )}
                {isLocked && (
                     <div className="absolute top-1 right-1 flex items-center gap-1">
-                        <span className="font-bold text-blue-500 dark:text-blue-400 text-xs">VIP</span>
+                        <span className="font-bold text-yellow-500 dark:text-yellow-400 text-xs">VIP</span>
                         <LockClosedIcon className="w-4 h-4 text-yellow-500 dark:text-yellow-400" />
                     </div>
                 )}

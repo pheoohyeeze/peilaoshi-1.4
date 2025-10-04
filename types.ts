@@ -85,16 +85,17 @@ export interface WordProgress {
 export type ProgressData = Record<string, WordProgress>;
 
 // New types for Activity History
-export type ActivityType = 'lesson_start' | 'quiz_complete' | 'practice_complete';
+export type ActivityType = 'lesson_start' | 'quiz_complete' | 'practice_complete' | 'login' | 'register';
 
 export interface ActivityLogEntry {
   id: number; // timestamp
   type: ActivityType;
-  level: HSKLevel;
-  lesson: number;
+  level?: HSKLevel;
+  lesson?: number;
   mode?: PracticeMode;
   word?: string; // character
   score?: number;
   total?: number;
   isCorrect?: boolean;
+  username?: string; // For admin dashboard view
 }
