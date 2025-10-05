@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { XCircleIcon } from './IconComponents';
+import { WEIXIN_QR_CODE_URL, WHATSAPP_QR_CODE_URL } from '../constants';
 
 const QRCodePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [copySuccess, setCopySuccess] = useState('');
@@ -15,8 +16,6 @@ const QRCodePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     });
   };
 
-  const weixinQr = '/image/weixin.jpg';
-  const whatsappQr = '/image/whatsapp.jpg';
   const weixinId = 'HSK1-6';
   const whatsappId = '+856 20 96 473 810';
 
@@ -47,8 +46,8 @@ const QRCodePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           {/* WeChat Section */}
           <div className="text-center">
             <h2 className="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-2">WeChat</h2>
-            <a href={weixinQr} download="weixin_qr.jpg" className="inline-block p-4 bg-white rounded-lg shadow-md border border-gray-100 dark:border-slate-700">
-              <img src={weixinQr} alt="WeChat QR Code" className="w-48 h-48 mx-auto" />
+            <a href={WEIXIN_QR_CODE_URL} download="weixin_qr.jpg" className="inline-block p-4 bg-white rounded-lg shadow-md border border-gray-100 dark:border-slate-700">
+              <img src={WEIXIN_QR_CODE_URL} alt="WeChat QR Code" className="w-48 h-48 mx-auto" />
             </a>
             <div className="mt-4">
               <p className="text-sm text-slate-500 dark:text-slate-400">WeChat ID:</p>
@@ -64,8 +63,8 @@ const QRCodePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           {/* WhatsApp Section */}
           <div className="text-center">
             <h2 className="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-2">WhatsApp</h2>
-            <a href={whatsappQr} download="whatsapp_qr.jpg" className="inline-block p-4 bg-white rounded-lg shadow-md border border-gray-100 dark:border-slate-700">
-              <img src={whatsappQr} alt="WhatsApp QR Code" className="w-48 h-48 mx-auto" />
+            <a href={WHATSAPP_QR_CODE_URL} download="whatsapp.jpg" className="inline-block p-4 bg-white rounded-lg shadow-md border border-gray-100 dark:border-slate-700">
+              <img src={WHATSAPP_QR_CODE_URL} alt="WhatsApp QR Code" className="w-48 h-48 mx-auto" />
             </a>
             <div className="mt-4">
               <p className="text-sm text-slate-500 dark:text-slate-400">WhatsApp Link:</p>
