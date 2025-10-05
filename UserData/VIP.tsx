@@ -40,7 +40,7 @@ export const VIP_USERS = [
         vipPurchaseDate: '2024-01-01',
         vipExpiryDate: '2025-12-31',
        
-    }
+    },
     //4
     {
         username: 'a',
