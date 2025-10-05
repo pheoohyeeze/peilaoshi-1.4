@@ -7,7 +7,7 @@ export const VIP_USERS = [
         email: 'pei@gmail.com',
         phone: '12345678',
         password: '123456',
-        isVip: false,
+        isVip: true,
         orderId: 'bcelone123456789',
         vipPurchaseDate: '2024-01-01',
         vipExpiryDate: '2025-12-31',
