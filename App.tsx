@@ -414,6 +414,9 @@ const App: React.FC = () => {
     if (selectedLevel === 4) {
         return buttons.filter(b => b.mode !== 'writing');
     }
+    if (selectedLevel === 5 || selectedLevel === 6) {
+        return buttons.filter(b => b.mode !== 'ordering');
+    }
     
     return buttons;
   }, [selectedLevel, currentUser]);

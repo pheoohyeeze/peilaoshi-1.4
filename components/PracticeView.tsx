@@ -586,6 +586,12 @@ const PracticeView: React.FC<PracticeViewProps> = ({ mode, word, data, level, le
                                       {orderStatus === 'correct' ? '🎉 ຖືກຕ້ອງ!' : 'ບໍ່ຖືກຕ້ອງ.'} ລຳດັບທີ່ຖືກຕ້ອງແມ່ນ: {exercise.correctOrder}
                                     </p>
                                     <p className="text-lg text-slate-800 dark:text-slate-100 mt-2">{fullSentence}</p>
+                                    <button
+                                      onClick={() => onNewExercise(mode)}
+                                      className="mt-4 px-6 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-secondary transition-colors"
+                                    >
+                                      ຝຶກຂໍ້ຕໍ່ໄປ
+                                    </button>
                                   </div>
                                 )
                               })()}
