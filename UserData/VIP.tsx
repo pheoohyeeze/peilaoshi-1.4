@@ -30,11 +30,11 @@ export const VIP_USERS = [
     },
    //3
    {
-        username: 'DD',
+        username: 'BACK',
         userID: 'vip003',
-        email: 'dd@gmail.com',
-        phone: '12345678cs90',
-        password: '123456',
+        email: 'phet23605@gmail.com',
+        phone: '2095921151',
+        password: '12345',
         isVip: true,
         orderId: 'bcelone123456789',
         vipPurchaseDate: '2024-01-01',
