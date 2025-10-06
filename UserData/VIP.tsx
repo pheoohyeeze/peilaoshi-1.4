@@ -36,9 +36,9 @@ export const VIP_USERS = [
         phone: '2095921151',
         password: '12345',
         isVip: true,
-        orderId: 'bcelone123456789',
-        vipPurchaseDate: '2024-01-01',
-        vipExpiryDate: '2025-12-31',
+        orderId: '202510064598501',
+        vipPurchaseDate: '2025-10-6',
+        vipExpiryDate: '2025-01-6',
         
         devices: [],
     },
