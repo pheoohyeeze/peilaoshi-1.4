@@ -38,7 +38,7 @@ export const VIP_USERS = [
         isVip: true,
         orderId: '202510064598501',
         vipPurchaseDate: '2025-10-6',
-        vipExpiryDate: '2025-01-6',
+        vipExpiryDate: '2026-01-6',
         
         devices: [],
     },
