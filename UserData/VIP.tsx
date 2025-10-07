@@ -43,4 +43,20 @@ export const VIP_USERS = [
         devices: [],
     },
 
+//4
+   {
+        username: 'ນ.ສຸດາພອນ',
+        userID: 'vip003',
+        email: 'soudaphone912006@gmail.com',
+        phone: '2029666931',
+        password: 'Nok99999',
+        isVip: true,
+        orderId: '202510073863474',
+        vipPurchaseDate: '2025-10-7',
+        vipExpiryDate: '2026-01-7',
+        
+        devices: [],
+    },
+
+
 ];
