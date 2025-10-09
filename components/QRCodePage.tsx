@@ -39,7 +39,7 @@ const QRCodePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         </button>
 
         <h1 className="text-center text-2xl font-bold mb-6 text-slate-800 dark:text-slate-100">
-          ສະແກນເພື່ອເຂົ້າກຸ່ມ
+          ສະແກນເພື່ອອັບເກຣດVIP ຫຼື ສອບຖາມຂໍ໊ມູນເພິ່ມເຕີມ.
         </h1>
 
         <div className="space-y-8">

@@ -129,6 +129,7 @@ export const getUser = (username: string): (Omit<User, 'password'> & { isAdmin: 
             isAdmin: true,
             vipPurchaseDate: '2024-01-01',
             vipExpiryDate: '9999-12-31',
+            devices: [],
         };
     }
 
@@ -162,6 +163,7 @@ export const getUser = (username: string): (Omit<User, 'password'> & { isAdmin: 
             vipPurchaseDate: userData.vipPurchaseDate,
             vipExpiryDate: userData.vipExpiryDate,
             isAdmin: false,
+            devices: userData.devices || [],
         };
     }
     
@@ -284,3 +286,17 @@ export const deleteUser = (username: string): void => {
 
     saveData(users, progress);
 };
+
+export const changeUserPassword = (username: string, currentPassword, newPassword): { success: boolean, message: string } => {
+    const { users } = getAllData();
+    const userData = users[username];
+
+    if (!userData || userData.password !== currentPassword) {
+        return { success: false, message: 'ລະຫັດຜ່ານປັດຈຸບັນບໍ່ຖືກຕ້ອງ.' };
+    }
+
+    users[username].password = newPassword;
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+
+    return { success: true, message: 'ປ່ຽນລະຫັດຜ່ານສຳເລັດແລ້ວ.' };
+}

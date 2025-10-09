@@ -3,7 +3,7 @@ import type { HSKLevel, VocabularyWord, PracticeMode, ProgressData, ActivityLogE
 import { fetchHSKVocabularyForLesson, generatePracticeExercise, getSentenceFeedback, getEssayFeedback, generateTranslationChoiceQuiz, generateWordBuildingQuiz, generateMatchingQuiz } from './services/geminiService';
 import { getProgress, updateWordMastery } from './services/progressService';
 import { getActivityHistory, logActivity } from './services/activityLogService';
-import { getUser, User, deregisterDevice } from './services/adminService';
+import { getUser, User, deregisterDevice, changeUserPassword } from './services/adminService';
 import { HSK_LEVELS } from './constants';
 import { HSK_VOCABULARY } from './data/hsk-vocabulary';
 import HSKLevelSelector from './components/HSKLevelSelector';
@@ -17,12 +17,13 @@ import VIPPage from './components/VIPPage';
 import QRCodePage from './components/QRCodePage';
 import ActivityHistoryView from './components/ActivityHistoryView';
 import AdminDashboard from './components/AdminDashboard';
+import ProfilePage from './components/ProfilePage';
 import { 
     ArrowLeftIcon, ArrowRightIcon, BookOpenIcon, 
     LightBulbIcon, ShieldExclamationIcon, ArrowsRightLeftIcon, 
     ChatBubbleLeftRightIcon, PencilIcon, QueueListIcon, 
     MagnifyingGlassIcon, XCircleIcon, SpeakerWaveIcon, QuestionMarkCircleIcon, SquaresPlusIcon, LinkIcon,
-    PuzzlePieceIcon, SunIcon, MoonIcon, ArrowRightOnRectangleIcon, ChartBarIcon, ClockIcon, LockClosedIcon, CrownIcon
+    PuzzlePieceIcon, SunIcon, MoonIcon, ArrowRightOnRectangleIcon, ChartBarIcon, ClockIcon, LockClosedIcon, CrownIcon, UserIcon
 } from './components/IconComponents';
 
 const playAudio = (audioUrl?: string) => {
@@ -116,6 +117,7 @@ const App: React.FC = () => {
   const [showVipPage, setShowVipPage] = useState(false);
   const [showQRCodePage, setShowQRCodePage] = useState(false);
   const [showActivityHistory, setShowActivityHistory] = useState(false);
+  const [showProfilePage, setShowProfilePage] = useState(false);
 
 
   useEffect(() => {
@@ -146,7 +148,7 @@ const App: React.FC = () => {
     sessionStorage.setItem('hsk-user', username);
     const userData = getUser(username);
     if (userData) {
-      setCurrentUser(userData);
+      setCurrentUser(userData as CurrentUser);
       if (!userData.isAdmin) {
         setProgress(getProgress(username));
         setActivityHistory(getActivityHistory(username));
@@ -181,6 +183,19 @@ const App: React.FC = () => {
 
   const handleVipLockClick = () => {
     setShowVipPage(true);
+  };
+  
+  const handleUpdatePassword = async (currentPassword: string, newPassword: string): Promise<{ success: boolean; message: string; }> => {
+    if (!currentUser) return { success: false, message: 'ບໍ່ມີຜູ້ໃຊ້ເຂົ້າສູ່ລະບົບ.' };
+    const result = changeUserPassword(currentUser.username, currentPassword, newPassword);
+    return result;
+  };
+
+  const handleDeregisterDevice = (deviceId: string) => {
+    if (!currentUser) return;
+    deregisterDevice(currentUser.username, deviceId);
+    // Refresh user data to show updated device list
+    handleLoginSuccess(currentUser.username);
   };
 
 
@@ -569,6 +584,15 @@ const App: React.FC = () => {
           onClose={() => setShowActivityHistory(false)}
         />
       )}
+      {showProfilePage && currentUser && !currentUser.isAdmin && (
+        <ProfilePage
+            user={currentUser}
+            onClose={() => setShowProfilePage(false)}
+            onUpdatePassword={handleUpdatePassword}
+            onDeregisterDevice={handleDeregisterDevice}
+            currentDeviceId={getDeviceId()}
+        />
+      )}
       {showVipPage && (
         <VIPPage 
             onClose={() => setShowVipPage(false)} 
@@ -616,7 +640,14 @@ const App: React.FC = () => {
           {currentUser && !currentUser.isAdmin && (
             <div className="flex items-center gap-2">
                 <span className="hidden sm:inline text-slate-600 dark:text-slate-300">ສະບາຍດີ, {currentUser.username}</span>
-                {currentUser.isVip && <CrownIcon className="w-5 h-5 text-yellow-500" />}
+                {currentUser.isVip && <CrownIcon className="w-5 h-5 text-yellow-500" title={`ສະມາຊິກ VIP ໝົດອາຍຸວັນທີ: ${currentUser.vipExpiryDate}`} />}
+                 <button
+                    onClick={() => setShowProfilePage(true)}
+                    className="p-2 rounded-full bg-slate-200/50 dark:bg-slate-700/50 text-slate-600 dark:text-blue-300 hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
+                    aria-label="ເບິ່ງໂປຣໄຟລ໌"
+                >
+                    <UserIcon className="w-6 h-6" />
+                </button>
                 <button
                     onClick={handleLogout}
                     className="p-2 rounded-full bg-slate-200/50 dark:bg-slate-700/50 text-slate-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors"
@@ -643,7 +674,7 @@ const App: React.FC = () => {
             </button>
          )}
          <p className="text-slate-1800 dark:text-slate-400 text-sm mt-4">ຕິດຕາມ tiktok: peilaoshi_ </p>
-         <p className="text-slate-1800 dark:text-slate-400 text-sm mt-4"> ສັ່ງຊື້ປື້ມແບບຮຽນ ແລະ ຄຳສັບ HSK1-6 ໄດ້ທີ: WeChat: Pheoohyeeze33 </p>
+         <p className="text-slate-1800 dark:text-slate-400 text-sm mt-4"> ສັ່ງຊື້ປື້ມແບບຮຽນ ແລະ ຄຳສັບ HSK1-6 ໄດ້ທີ: WeChat: Pheoohyeeze33 ຫຼື Whatsaap: 2096473810</p>
          <p className="text-slate-1800 dark:text-slate-400 text-sm mt-4"> ຂໍຂອບໃຈທຸກທ່ານ </p>
          
 

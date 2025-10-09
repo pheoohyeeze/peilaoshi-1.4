@@ -40,22 +40,33 @@ const VIPPage: React.FC<VIPPageProps> = ({ onClose, onPurchaseClick }) => {
               VIP 3 ເດືອນ
             </div>
             <div className="bg-white text-gray-800 font-semibold py-3 px-5 rounded-full shadow-md w-full text-center">
+              150.000 ກິບ ແຖມໄຟລ໌ປື້ມແບບຮຽນຄົບຊຸດໜື່ງລະດັບ
+            </div>
+            <div className="bg-white text-gray-800 font-semibold py-3 px-5 rounded-full shadow-md w-full text-center">
               VIP 1 ປີ
+            </div>
+            <div className="bg-white text-gray-800 font-semibold py-3 px-5 rounded-full shadow-md w-full text-center">
+              480.000 ກິບ ແຖມໄຟລ໌ປື້ມແບບຮຽນຄົບຊຸດໜື່ງລະດັບ
             </div>
           </div>
 
           {/* Activation Conditions */}
           <div className="bg-cyan-100/80 backdrop-blur-sm rounded-2xl p-4 flex flex-col items-center gap-4 shadow-lg">
             <h2 className="bg-teal-600 text-white font-bold py-2 px-6 rounded-full w-full text-center shadow-md">
-              ເງື່ອນໄຂປົດລ໊ອກVIP
+              ໂປຣໂມຊັ່ນພິເສດ
             </h2>
             <div className="bg-white text-gray-800 font-semibold py-3 px-5 rounded-full shadow-md w-full text-center leading-tight">
-              ສັ່ງຊື້ປື້ມແບບຮຽນHSK1-6<br />ປົດລ໊ອກVIP
+              ສັ່ງຊື້ປື້ມແບບຮຽນຄົບຊຸດລະດັບໃດໜື່ງ HSK1-6
+            </div>
+            
+            <div className="bg-white text-gray-800 font-semibold py-3 px-5 rounded-full shadow-md w-full text-center leading-tight">
+              ສັ່ງຊື້ປື້ມຄຳສັບລະດັບໃດໜື່ງ HSK-6
             </div>
             <div className="bg-white text-gray-800 font-semibold py-3 px-5 rounded-full shadow-md w-full text-center leading-tight">
-              ສັ່ງຊື້ປື້ມຄຳສັບHSK1-6<br />ປົດລ໊ອກVIP
+              ປົດລ໊ອກVIPໍ 1 ເດືອນ
             </div>
           </div>
+          
         </div>
 
         {/* Discount */}
