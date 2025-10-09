@@ -4,7 +4,7 @@ import { fetchHSKVocabularyForLesson, generatePracticeExercise, getSentenceFeedb
 import { getProgress, updateWordMastery } from './services/progressService';
 import { getActivityHistory, logActivity } from './services/activityLogService';
 import { getUser, User, deregisterDevice, changeUserPassword } from './services/adminService';
-import { HSK_LEVELS } from './constants';
+import { HSK_LEVELS, WORDS_PER_LESSON } from './constants';
 import { HSK_VOCABULARY } from './data/hsk-vocabulary';
 import HSKLevelSelector from './components/HSKLevelSelector';
 import LessonSelector from './components/LessonSelector';
@@ -39,6 +39,7 @@ type CurrentUser = (Omit<User, 'password'> & { isAdmin: boolean });
 
 interface SearchResultsProps {
   results: SearchResultWord[];
+  onWordSelect: (word: SearchResultWord) => void;
 }
 
 const getDeviceId = () => {
@@ -50,7 +51,7 @@ const getDeviceId = () => {
     return deviceId;
 };
 
-const SearchResults: React.FC<SearchResultsProps> = ({ results }) => {
+const SearchResults: React.FC<SearchResultsProps> = ({ results, onWordSelect }) => {
   if (results.length === 0) {
     return (
       <div className="text-center p-8 text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-800 rounded-2xl">
@@ -64,10 +65,21 @@ const SearchResults: React.FC<SearchResultsProps> = ({ results }) => {
         <h2 className="text-xl font-bold text-center text-slate-800 dark:text-slate-100 my-2">ຜົນການຄົ້ນຫາ ({results.length})</h2>
         <ul className="divide-y divide-slate-200 dark:divide-slate-700">
             {results.map((word, index) => (
-                <li key={`${word.character}-${index}`} className="flex items-center justify-between p-3">
+                <li key={`${word.character}-${index}`}
+                    onClick={() => onWordSelect(word)}
+                    onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onWordSelect(word)}
+                    className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer rounded-lg"
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Go to lesson for ${word.character}`}
+                >
+                  <div className="flex items-center justify-between p-3">
                     <div className="flex items-center gap-4">
                         <button
-                            onClick={() => playAudio(word.audioUrl)}
+                            onClick={(e) => {
+                                e.stopPropagation(); // Prevent navigating to lesson
+                                playAudio(word.audioUrl);
+                            }}
                             className="p-2 rounded-full bg-slate-100 text-slate-600 hover:bg-brand-primary hover:text-white dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-brand-primary transition-colors flex-shrink-0"
                             aria-label={`Play pronunciation for ${word.character}`}
                         >
@@ -82,6 +94,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({ results }) => {
                     <span className="text-sm font-medium bg-blue-100 text-brand-primary px-2 py-1 rounded-md dark:bg-blue-900/50 dark:text-blue-300">
                         HSK {word.level}
                     </span>
+                   </div>
                 </li>
             ))}
         </ul>
@@ -267,6 +280,43 @@ const App: React.FC = () => {
       setIsLoading(false);
     }
   }, [selectedLevel, handleLogActivity]);
+  
+  const handleGoToLessonFromSearch = useCallback(async (word: SearchResultWord) => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+        const { level, character } = word;
+        
+        const wordsForLevel = HSK_VOCABULARY[level] || [];
+        const wordIndexInLevel = wordsForLevel.findIndex(w => w.character === character);
+
+        if (wordIndexInLevel === -1) {
+            throw new Error("ບໍ່ພົບຄຳສັບໃນຖານຂໍ້ມູນ.");
+        }
+
+        const lessonNumber = Math.floor(wordIndexInLevel / WORDS_PER_LESSON) + 1;
+        
+        const lessonWords = await fetchHSKVocabularyForLesson(level, lessonNumber);
+        const indexInLesson = lessonWords.findIndex(w => w.character === character);
+
+        if (indexInLesson === -1) {
+            throw new Error("ບໍ່ສາມາດຊອກຫາຄຳສັບໃນບົດຮຽນໄດ້.");
+        }
+
+        setVocabulary(lessonWords);
+        setCurrentIndex(indexInLesson);
+        setSelectedLevel(level);
+        setSelectedLesson(lessonNumber);
+        setSearchQuery(''); // This will hide search results and show the lesson view
+        handleLogActivity({ type: 'lesson_start', level: level, lesson: lessonNumber });
+
+    } catch (err) {
+        setError(err instanceof Error ? err.message : 'ເກີດຂໍ້ຜິດພາດໃນການໄປທີ່ບົດຮຽນ.');
+    } finally {
+        setIsLoading(false);
+    }
+  }, [handleLogActivity]);
 
 
   const handleNext = () => {
@@ -473,7 +523,7 @@ const App: React.FC = () => {
 
               <div className="flex-grow">
                   {searchQuery.trim().length > 0 ? (
-                      <SearchResults results={searchResults} />
+                      <SearchResults results={searchResults} onWordSelect={handleGoToLessonFromSearch} />
                   ) : (
                       <HSKLevelSelector onSelectLevel={handleLevelSelect} />
                   )}
