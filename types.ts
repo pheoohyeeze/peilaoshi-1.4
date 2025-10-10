@@ -7,6 +7,8 @@ export interface VocabularyWord {
   audioUrl?: string;
 }
 
+export type SearchResultWord = VocabularyWord & { level: HSKLevel | null };
+
 export type PracticeMode = 'example' | 'correction' | 'scramble' | 'building' | 'writing' | 'ordering' | 'translation_choice' | 'build_from_translation' | 'matching' | 'conjunction';
 
 export interface SentenceExample {

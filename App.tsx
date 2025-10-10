@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import type { HSKLevel, VocabularyWord, PracticeMode, ProgressData, ActivityLogEntry } from './types';
-import { fetchHSKVocabularyForLesson, generatePracticeExercise, getSentenceFeedback, getEssayFeedback, generateTranslationChoiceQuiz, generateWordBuildingQuiz, generateMatchingQuiz } from './services/geminiService';
+import type { HSKLevel, VocabularyWord, PracticeMode, ProgressData, ActivityLogEntry, SearchResultWord } from './types';
+import { fetchHSKVocabularyForLesson, generatePracticeExercise, getSentenceFeedback, getEssayFeedback, generateTranslationChoiceQuiz, generateWordBuildingQuiz, generateMatchingQuiz, identifyCharactersInImage, identifyObjectInImage } from './services/geminiService';
 import { getProgress, updateWordMastery } from './services/progressService';
 import { getActivityHistory, logActivity } from './services/activityLogService';
 import { getUser, User, deregisterDevice, changeUserPassword } from './services/adminService';
@@ -23,7 +23,8 @@ import {
     LightBulbIcon, ShieldExclamationIcon, ArrowsRightLeftIcon, 
     ChatBubbleLeftRightIcon, PencilIcon, QueueListIcon, 
     MagnifyingGlassIcon, XCircleIcon, SpeakerWaveIcon, QuestionMarkCircleIcon, SquaresPlusIcon, LinkIcon,
-    PuzzlePieceIcon, SunIcon, MoonIcon, ArrowRightOnRectangleIcon, ChartBarIcon, ClockIcon, LockClosedIcon, CrownIcon, UserIcon
+    PuzzlePieceIcon, SunIcon, MoonIcon, ArrowRightOnRectangleIcon, ChartBarIcon, ClockIcon, LockClosedIcon, CrownIcon, UserIcon,
+    CameraIcon
 } from './components/IconComponents';
 
 const playAudio = (audioUrl?: string) => {
@@ -33,7 +34,6 @@ const playAudio = (audioUrl?: string) => {
   }
 };
 
-type SearchResultWord = VocabularyWord & { level: HSKLevel };
 type CurrentUser = (Omit<User, 'password'> & { isAdmin: boolean });
 
 
@@ -68,10 +68,10 @@ const SearchResults: React.FC<SearchResultsProps> = ({ results, onWordSelect }) 
                 <li key={`${word.character}-${index}`}
                     onClick={() => onWordSelect(word)}
                     onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onWordSelect(word)}
-                    className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer rounded-lg"
-                    role="button"
-                    tabIndex={0}
-                    aria-label={`Go to lesson for ${word.character}`}
+                    className={`transition-colors rounded-lg ${word.level ? 'hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer' : 'cursor-default'}`}
+                    role={word.level ? "button" : "listitem"}
+                    tabIndex={word.level ? 0 : -1}
+                    aria-label={word.level ? `Go to lesson for ${word.character}` : word.character}
                 >
                   <div className="flex items-center justify-between p-3">
                     <div className="flex items-center gap-4">
@@ -91,8 +91,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({ results, onWordSelect }) 
                             <p className="text-md text-slate-600 dark:text-slate-300">{word.translation}</p>
                         </div>
                     </div>
-                    <span className="text-sm font-medium bg-blue-100 text-brand-primary px-2 py-1 rounded-md dark:bg-blue-900/50 dark:text-blue-300">
-                        HSK {word.level}
+                    <span className={`text-sm font-medium px-2 py-1 rounded-md ${word.level ? 'bg-blue-100 text-brand-primary dark:bg-blue-900/50 dark:text-blue-300' : 'bg-slate-200 text-slate-600 dark:bg-slate-600 dark:text-slate-300'}`}>
+                        {word.level ? `HSK ${word.level}` : 'ຄຳສັບທົ່ວໄປ'}
                     </span>
                    </div>
                 </li>
@@ -131,6 +131,10 @@ const App: React.FC = () => {
   const [showQRCodePage, setShowQRCodePage] = useState(false);
   const [showActivityHistory, setShowActivityHistory] = useState(false);
   const [showProfilePage, setShowProfilePage] = useState(false);
+
+  const [showCameraView, setShowCameraView] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+  const [cameraScanResults, setCameraScanResults] = useState<SearchResultWord[] | null>(null);
 
 
   useEffect(() => {
@@ -250,7 +254,7 @@ const App: React.FC = () => {
               pinyinWithoutTones.includes(queryWithoutTones) ||
               word.translation.toLowerCase().includes(lowerCaseQuery);
           }
-      );
+      ).map(word => ({ ...word, level: word.level as HSKLevel | null }));
   }, [searchQuery, allVocabulary]);
 
 
@@ -282,6 +286,11 @@ const App: React.FC = () => {
   }, [selectedLevel, handleLogActivity]);
   
   const handleGoToLessonFromSearch = useCallback(async (word: SearchResultWord) => {
+    if (word.level === null) {
+      playAudio(word.audioUrl);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
     
@@ -308,7 +317,9 @@ const App: React.FC = () => {
         setCurrentIndex(indexInLesson);
         setSelectedLevel(level);
         setSelectedLesson(lessonNumber);
-        setSearchQuery(''); // This will hide search results and show the lesson view
+        setSearchQuery('');
+        setShowCameraView(false);
+        setCameraScanResults(null);
         handleLogActivity({ type: 'lesson_start', level: level, lesson: lessonNumber });
 
     } catch (err) {
@@ -443,6 +454,31 @@ const App: React.FC = () => {
       }
   }, [selectedLevel]);
 
+    const handleImageScan = async (base64ImageData: string, mode: 'character' | 'object') => {
+        setIsScanning(true);
+        setError(null);
+        setCameraScanResults(null);
+        try {
+            const results = mode === 'character'
+                ? await identifyCharactersInImage(base64ImageData)
+                : await identifyObjectInImage(base64ImageData);
+            setCameraScanResults(results);
+        } catch(err) {
+            const errorMessage = err instanceof Error ? err.message : 'ເກີດຂໍ້ຜິດພາດທີ່ບໍ່ຄາດຄິດໃນລະຫວ່າງການສະແກນຮູບພາບ.';
+            setError(errorMessage);
+            setShowCameraView(false); // Close camera to show main error
+        } finally {
+            setIsScanning(false);
+        }
+    };
+
+    const handleCloseCamera = () => {
+        setShowCameraView(false);
+        setCameraScanResults(null);
+        setIsScanning(false);
+        setError(null);
+    };
+
   const backToFlashcards = () => {
     setPracticeMode(null);
     setPracticeData(null);
@@ -486,6 +522,117 @@ const App: React.FC = () => {
     return buttons;
   }, [selectedLevel, currentUser]);
 
+  const CameraView: React.FC<{ onClose: () => void; }> = ({ onClose }) => {
+    const videoRef = React.useRef<HTMLVideoElement>(null);
+    const canvasRef = React.useRef<HTMLCanvasElement>(null);
+    const [cameraError, setCameraError] = useState<string | null>(null);
+    const [cameraMode, setCameraMode] = useState<'character' | 'object'>('character');
+
+    useEffect(() => {
+        let stream: MediaStream | null = null;
+        const startCamera = async () => {
+            try {
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    setCameraError("ຄຸນສົມບັດກ້ອງຖ່າຍຮູບບໍ່ຮອງຮັບໃນບຣາວເຊີນີ້.");
+                    return;
+                }
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                if (videoRef.current) {
+                    videoRef.current.srcObject = stream;
+                }
+            } catch (err) {
+                console.error("Error accessing camera:", err);
+                setCameraError("ບໍ່ສາມາດເຂົ້າເຖິງກ້ອງຖ່າຍຮູບໄດ້. ກະລຸນາກວດສອບການອະນຸຍາດ.");
+            }
+        };
+
+        startCamera();
+
+        return () => {
+            stream?.getTracks().forEach(track => track.stop());
+        };
+    }, []);
+
+    const handleCapture = () => {
+        if (!videoRef.current || !canvasRef.current) return;
+        const video = videoRef.current;
+        const canvas = canvasRef.current;
+        const context = canvas.getContext('2d');
+        if (!context) return;
+        
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+        
+        const imageDataUrl = canvas.toDataURL('image/jpeg');
+        const base64Data = imageDataUrl.split(',')[1];
+        handleImageScan(base64Data, cameraMode);
+    };
+    
+    if (cameraScanResults) {
+        return (
+            <div className="fixed inset-0 bg-slate-900 z-50 p-4 flex flex-col items-center justify-center animate-fade-in">
+                {cameraMode === 'object' && cameraScanResults.length === 0 ? (
+                     <div className="text-center p-8 text-slate-400 bg-slate-800 rounded-2xl">
+                        <p>ບໍ່ສາມາດກວດຫາວັດຖຸທີ່ຮູ້ຈັກໄດ້.</p>
+                        <p className="text-sm mt-2">ກະລຸນາລອງໃໝ່ດ້ວຍຮູບທີ່ຊັດເຈນກວ່າ ຫຼື ວັດຖຸອື່ນ.</p>
+                    </div>
+                ) : (
+                    <SearchResults results={cameraScanResults} onWordSelect={handleGoToLessonFromSearch} />
+                )}
+                <button 
+                    onClick={() => setCameraScanResults(null)}
+                    className="mt-4 px-6 py-3 bg-brand-primary text-white rounded-lg text-lg font-semibold"
+                >
+                    {cameraScanResults.length === 0 ? 'ລອງໃໝ່' : 'ສະແກນອີກຄັ້ງ'}
+                </button>
+                 <button onClick={onClose} className="absolute top-4 left-4 p-3 bg-black/50 text-white rounded-full">
+                    <XCircleIcon className="w-8 h-8"/>
+                </button>
+            </div>
+        )
+    }
+
+    if (isScanning) {
+        return (
+            <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 p-4 flex flex-col items-center justify-center">
+                <LoadingSpinner message={cameraMode === 'character' ? "ກຳລັງວິເຄາະຕົວໜັງສື..." : "ກຳລັງວິເຄາະວັດຖຸ..."} />
+            </div>
+        )
+    }
+
+    return (
+        <div className="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center">
+             <div className="absolute top-4 right-4 bg-black/50 p-1 rounded-full flex gap-1 text-white z-10">
+                <button 
+                    onClick={() => setCameraMode('character')}
+                    className={`px-3 py-1 text-sm rounded-full transition-colors ${cameraMode === 'character' ? 'bg-brand-primary' : 'bg-transparent'}`}
+                >
+                    ສະແກນຕົວໜັງສື
+                </button>
+                <button 
+                    onClick={() => setCameraMode('object')}
+                    className={`px-3 py-1 text-sm rounded-full transition-colors ${cameraMode === 'object' ? 'bg-brand-primary' : 'bg-transparent'}`}
+                >
+                    ສະແກນວັດຖຸ
+                </button>
+            </div>
+            <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover"></video>
+            <button onClick={onClose} className="absolute top-4 left-4 p-3 bg-black/50 text-white rounded-full z-10">
+                <XCircleIcon className="w-8 h-8"/>
+            </button>
+            {cameraError && <div className="absolute top-20 p-4 bg-red-500 text-white text-center rounded-lg">{cameraError}</div>}
+            <div className="absolute bottom-8 flex flex-col items-center gap-4 z-10">
+                <p className="text-white text-lg font-semibold bg-black/50 px-4 py-2 rounded-full">
+                    {cameraMode === 'character' ? 'ຈັດວາງຕົວອັກສອນຈີນໄວ້ໃນກອບ' : 'ຈັດວາງວັດຖຸໄວ້ກາງຈໍ'}
+                </p>
+                <button onClick={handleCapture} className="w-20 h-20 bg-white rounded-full border-4 border-slate-300 ring-4 ring-white/30"></button>
+            </div>
+            <canvas ref={canvasRef} className="hidden"></canvas>
+        </div>
+    );
+};
+
   const renderMainContent = () => {
     if (!currentUser) {
         return <Auth onLoginSuccess={handleLoginSuccess} />;
@@ -498,27 +645,36 @@ const App: React.FC = () => {
     if (!selectedLevel) {
       return (
           <div className="w-full max-w-2xl mx-auto flex flex-col">
-              <div className="relative mb-6">
-                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                      <MagnifyingGlassIcon className="w-5 h-5 text-slate-400 dark:text-slate-500" />
-                  </span>
-                  <input
-                      type="search"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="ຄົ້ນຫາຄຳສັບ HSK (ຕົວອັກສອນ, ພິນອິນ, ຄຳແປ)..."
-                      className="w-full py-3 pl-10 pr-10 text-lg text-slate-800 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100 dark:placeholder-slate-400"
-                      aria-label="Search HSK Vocabulary"
-                  />
-                  {searchQuery && (
-                      <button
-                          onClick={() => setSearchQuery('')}
-                          className="absolute inset-y-0 right-0 flex items-center pr-3"
-                          aria-label="Clear search"
-                      >
-                          <XCircleIcon className="w-6 h-6 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors" />
-                      </button>
-                  )}
+              <div className="relative mb-6 flex items-center gap-2">
+                  <div className="relative flex-grow">
+                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <MagnifyingGlassIcon className="w-5 h-5 text-slate-400 dark:text-slate-500" />
+                    </span>
+                    <input
+                        type="search"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="ຄົ້ນຫາຄຳສັບ HSK (ຕົວອັກສອນ, ພິນອິນ, ຄຳແປ)..."
+                        className="w-full py-3 pl-10 pr-10 text-lg text-slate-800 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100 dark:placeholder-slate-400"
+                        aria-label="Search HSK Vocabulary"
+                    />
+                    {searchQuery && (
+                        <button
+                            onClick={() => setSearchQuery('')}
+                            className="absolute inset-y-0 right-0 flex items-center pr-3"
+                            aria-label="Clear search"
+                        >
+                            <XCircleIcon className="w-6 h-6 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors" />
+                        </button>
+                    )}
+                  </div>
+                   <button
+                        onClick={() => setShowCameraView(true)}
+                        className="p-3 bg-white border border-slate-300 rounded-lg text-slate-600 hover:bg-brand-primary hover:text-white dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 dark:hover:text-white transition-colors flex-shrink-0"
+                        aria-label="Scan with camera"
+                    >
+                        <CameraIcon className="w-6 h-6" />
+                    </button>
               </div>
 
               <div className="flex-grow">
@@ -620,6 +776,7 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 text-slate-800 dark:bg-slate-900 dark:text-slate-200 flex flex-col items-center p-4 font-sans">
+      {showCameraView && <CameraView onClose={handleCloseCamera} />}
       {showProgressView && selectedLevel && currentUser && !currentUser.isAdmin && (
           <ProgressView 
             level={selectedLevel}

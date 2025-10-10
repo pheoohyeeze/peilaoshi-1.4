@@ -1,8 +1,8 @@
 // Fix: Implemented the full Gemini service to resolve module errors and provide app functionality.
 import { GoogleGenAI, Type } from "@google/genai";
-import type { HSKLevel, VocabularyWord, PracticeMode, SentenceExample, SentenceFeedback, ErrorCorrectionExercise, SentenceScrambleExercise, WritingExercise, SentenceOrderingExercise, TranslationChoiceQuestion, TranslationChoiceQuiz, WordBuildingQuiz, WordBuildingQuestion, MatchingQuiz, ConjunctionExercise } from '../types';
+import type { HSKLevel, VocabularyWord, PracticeMode, SentenceExample, SentenceFeedback, ErrorCorrectionExercise, SentenceScrambleExercise, WritingExercise, SentenceOrderingExercise, TranslationChoiceQuestion, TranslationChoiceQuiz, WordBuildingQuiz, WordBuildingQuestion, MatchingQuiz, ConjunctionExercise, SearchResultWord } from '../types';
 import { HSK_VOCABULARY } from '../data/hsk-vocabulary';
-import { WORDS_PER_LESSON } from '../constants';
+import { WORDS_PER_LESSON, HSK_LEVELS } from '../constants';
 // Import all sentence ordering exercises
 import { HSK4_SENTENCE_ORDERING_EXERCISES as H41001 } from '../data/pailiesunxu/H41001';
 import { HSK4_SENTENCE_ORDERING_EXERCISES as H41002 } from '../data/pailiesunxu/H41002';
@@ -380,5 +380,137 @@ export const getEssayFeedback = async (level: HSKLevel, essay: string, words: Vo
     } catch (error) {
         console.error('Error getting essay feedback:', error);
         throw new Error('Failed to get feedback from the API.');
+    }
+};
+
+const findWordLevel = (character: string): HSKLevel | null => {
+    for (const level of HSK_LEVELS) {
+        const levelAsNumber = parseInt(level.toString(), 10) as HSKLevel;
+        if (HSK_VOCABULARY[levelAsNumber]?.some(word => word.character === character)) {
+            return levelAsNumber;
+        }
+    }
+    return null;
+};
+
+export const identifyCharactersInImage = async (base64ImageData: string): Promise<SearchResultWord[]> => {
+    const imagePart = {
+        inlineData: {
+            mimeType: 'image/jpeg',
+            data: base64ImageData,
+        },
+    };
+
+    const textPart = {
+        text: `Identify all simplified Chinese HSK characters in this image. For each character found, provide its simplified form, its standard pinyin, and its Lao translation.
+        Respond ONLY with a valid JSON array. Each object in the array must have these exact keys: "character", "pinyin", "translation".
+        If no HSK characters are found, return an empty array [].
+        Example response for finding '你好': [{"character": "你", "pinyin": "nǐ", "translation": "ເຈົ້າ"}, {"character": "好", "pinyin": "hǎo", "translation": "ດີ"}]`,
+    };
+
+    const responseSchema = {
+        type: Type.ARRAY,
+        items: {
+            type: Type.OBJECT,
+            properties: {
+                character: { type: Type.STRING },
+                pinyin: { type: Type.STRING },
+                translation: { type: Type.STRING },
+            },
+            required: ['character', 'pinyin', 'translation'],
+        },
+    };
+
+    try {
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: { parts: [imagePart, textPart] },
+            config: {
+                responseMimeType: 'application/json',
+                responseSchema,
+            },
+        });
+
+        if (response.text) {
+            const identifiedWords = safeJsonParse(response.text) as VocabularyWord[];
+            
+            const resultsWithLevel: SearchResultWord[] = identifiedWords
+                .map(word => {
+                    const level = findWordLevel(word.character);
+                    if (level) {
+                        const originalWord = HSK_VOCABULARY[level].find(w => w.character === word.character);
+                        return { ...word, level, audioUrl: originalWord?.audioUrl };
+                    }
+                    return null;
+                })
+                // Fix: Corrected a TypeScript type predicate error by using a more robust type guard that correctly infers the filtered array type.
+                .filter((word): word is Exclude<typeof word, null> => word !== null);
+
+            return resultsWithLevel;
+        }
+        return [];
+    } catch (error) {
+        console.error('Error identifying characters in image:', error);
+        throw new Error('ບໍ່ສາມາດກວດຫາຕົວອັກສອນໄດ້. API ເກີດຂໍ້ຜິດພາດ.');
+    }
+};
+
+export const identifyObjectInImage = async (base64ImageData: string): Promise<SearchResultWord[]> => {
+    const imagePart = {
+        inlineData: {
+            mimeType: 'image/jpeg',
+            data: base64ImageData,
+        },
+    };
+
+    const textPart = {
+        text: `Identify the main object in this image. Provide its common Chinese name, standard pinyin, and its Lao translation.
+        Respond ONLY with a valid JSON object that has these exact keys: "character", "pinyin", "translation" (in Lao). 
+        If you cannot identify a clear object, return an empty JSON object {}.
+        For example, if you see a cup, respond: {"character": "杯子", "pinyin": "bēi zi", "translation": "ຈອກ"}.
+        If you see a screwdriver, respond: {"character": "螺丝刀", "pinyin": "luósīdāo", "translation": "ໄຂຄວງ"}.`,
+    };
+
+    const responseSchema = {
+        type: Type.OBJECT,
+        properties: {
+            character: { type: Type.STRING },
+            pinyin: { type: Type.STRING },
+            translation: { type: Type.STRING },
+        },
+    };
+
+    try {
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: { parts: [imagePart, textPart] },
+            config: {
+                responseMimeType: 'application/json',
+                responseSchema,
+            },
+        });
+
+        if (response.text) {
+            const identifiedWord = safeJsonParse(response.text) as VocabularyWord;
+
+            if (!identifiedWord || Object.keys(identifiedWord).length === 0 || !identifiedWord.character) {
+                return [];
+            }
+
+            const level = findWordLevel(identifiedWord.character);
+            if (level) {
+                const originalWord = HSK_VOCABULARY[level].find(w => w.character === identifiedWord.character);
+                const result: SearchResultWord = { ...identifiedWord, level, audioUrl: originalWord?.audioUrl };
+                return [result];
+            } else {
+                // It's not an HSK word, but the user still wants to see it.
+                const result: SearchResultWord = { ...identifiedWord, level: null, audioUrl: `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=${encodeURIComponent(identifiedWord.character)}&tl=zh-CN` };
+                return [result];
+            }
+        }
+        return [];
+    } catch (error) {
+        console.error('Error identifying object in image:', error);
+        throw new Error('ບໍ່ສາມາດກວດຫາວັດຖຸໄດ້. API ເກີດຂໍ້ຜິດພາດ.');
     }
 };
