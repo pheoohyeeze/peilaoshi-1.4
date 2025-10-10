@@ -568,6 +568,14 @@ const App: React.FC = () => {
         const base64Data = imageDataUrl.split(',')[1];
         handleImageScan(base64Data, cameraMode);
     };
+
+    const handleObjectScanClick = () => {
+        if (!currentUser?.isVip) {
+            handleVipLockClick();
+        } else {
+            setCameraMode('object');
+        }
+    };
     
     if (cameraScanResults) {
         return (
@@ -611,10 +619,13 @@ const App: React.FC = () => {
                     ສະແກນຕົວໜັງສື
                 </button>
                 <button 
-                    onClick={() => setCameraMode('object')}
-                    className={`px-3 py-1 text-sm rounded-full transition-colors ${cameraMode === 'object' ? 'bg-brand-primary' : 'bg-transparent'}`}
+                    onClick={handleObjectScanClick}
+                    className={`relative flex items-center gap-1 px-3 py-1 text-sm rounded-full transition-colors ${cameraMode === 'object' && currentUser?.isVip ? 'bg-brand-primary' : 'bg-transparent'}`}
                 >
-                    ສະແກນວັດຖຸ
+                    <span>ສະແກນວັດຖຸ</span>
+                    {!currentUser?.isVip && (
+                        <CrownIcon className="w-3 h-3 text-yellow-400" />
+                    )}
                 </button>
             </div>
             <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover"></video>
