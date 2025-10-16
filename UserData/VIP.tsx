@@ -73,5 +73,20 @@ export const VIP_USERS = [
         devices: [],
     },
 
+    //6
+   {
+        username: '',
+        userID: 'vip006',
+        email: '@gmail.com',
+        phone: '',
+        password: '',
+        isVip: true,
+        orderId: '',
+        vipPurchaseDate: '2025-10-16',
+        vipExpiryDate: '2026-10-16',
+        
+        devices: [],
+    },
+
 
 ];
