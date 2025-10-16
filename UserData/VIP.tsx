@@ -46,7 +46,7 @@ export const VIP_USERS = [
 //4
    {
         username: 'ນ.ສຸດາພອນ',
-        userID: 'vip003',
+        userID: 'vip004',
         email: 'soudaphone912006@gmail.com',
         phone: '2029666931',
         password: 'Nok99999',
@@ -54,6 +54,21 @@ export const VIP_USERS = [
         orderId: '202510073863474',
         vipPurchaseDate: '2025-10-7',
         vipExpiryDate: '2026-01-7',
+        
+        devices: [],
+    },
+
+    //5
+   {
+        username: 'Mot',
+        userID: 'vip005',
+        email: 'hxmobile134@gmail.com',
+        phone: '02052058450',
+        password: 'Bounmanj127k',
+        isVip: true,
+        orderId: '202510165979286',
+        vipPurchaseDate: '2025-10-16',
+        vipExpiryDate: '2026-01-16',
         
         devices: [],
     },
