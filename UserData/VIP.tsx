@@ -68,22 +68,22 @@ export const VIP_USERS = [
         isVip: true,
         orderId: '202510165979286',
         vipPurchaseDate: '2025-10-16',
-        vipExpiryDate: '2026-01-16',
+        vipExpiryDate: '2026-10-16',
         
         devices: [],
     },
 
     //6
    {
-        username: '',
+        username: 'Soutthidaa',
         userID: 'vip006',
-        email: '@gmail.com',
-        phone: '',
-        password: '',
+        email: 'soumisa58@gmail.com',
+        phone: '02022995574',
+        password: 'xigkid-perxyj-kigZa6',
         isVip: true,
         orderId: '',
-        vipPurchaseDate: '2025-10-16',
-        vipExpiryDate: '2026-10-16',
+        vipPurchaseDate: '2025-10-18',
+        vipExpiryDate: '2026-01-18',
         
         devices: [],
     },
