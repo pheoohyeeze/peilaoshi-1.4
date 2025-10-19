@@ -91,7 +91,7 @@ export const VIP_USERS = [
      //7
    {
         username: 'Vaen',
-        userID: 'vip006',
+        userID: 'vip007',
         email: 'vaentavanduangkeo@gmail.com',
         phone: '02096289869',
         password: 'vaenta.',
@@ -99,6 +99,21 @@ export const VIP_USERS = [
         orderId: '202510193660455',
         vipPurchaseDate: '2025-10-19',
         vipExpiryDate: '2026-01-19',
+        
+        devices: [],
+    },
+
+    //8
+   {
+        username: 'Noun',
+        userID: 'vip008',
+        email: 'nun72794@gmail.com',
+        phone: '02092864586',
+        password: '22324244',
+        isVip: true,
+        orderId: '202510201228248',
+        vipPurchaseDate: '2025-10-19',
+        vipExpiryDate: '2026-10-19',
         
         devices: [],
     },
