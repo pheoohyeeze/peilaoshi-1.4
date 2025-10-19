@@ -88,5 +88,20 @@ export const VIP_USERS = [
         devices: [],
     },
 
+     //7
+   {
+        username: 'Vaen',
+        userID: 'vip006',
+        email: 'vaentavanduangkeo@gmail.com',
+        phone: '02096289869',
+        password: 'vaenta.',
+        isVip: true,
+        orderId: '202510193660455',
+        vipPurchaseDate: '2025-10-19',
+        vipExpiryDate: '2026-01-19',
+        
+        devices: [],
+    },
+
 
 ];
