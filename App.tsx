@@ -14,6 +14,7 @@ import PracticeView from './components/PracticeView';
 import Auth from './components/Auth';
 import ProgressView from './components/ProgressView';
 import VIPPage from './components/VIPPage';
+import VipTutorial from './components/VipTutorial';
 import QRCodePage from './components/QRCodePage';
 import ActivityHistoryView from './components/ActivityHistoryView';
 import AdminDashboard from './components/AdminDashboard';
@@ -128,6 +129,7 @@ const App: React.FC = () => {
   const [showProgressView, setShowProgressView] = useState(false);
   const [activityHistory, setActivityHistory] = useState<ActivityLogEntry[]>([]);
   const [showVipPage, setShowVipPage] = useState(false);
+  const [showVipTutorial, setShowVipTutorial] = useState(false);
   const [showQRCodePage, setShowQRCodePage] = useState(false);
   const [showActivityHistory, setShowActivityHistory] = useState(false);
   const [showProfilePage, setShowProfilePage] = useState(false);
@@ -818,8 +820,10 @@ const App: React.FC = () => {
               setShowVipPage(false);
               setShowQRCodePage(true);
             }}
+            onShowTutorial={() => setShowVipTutorial(true)}
         />
       )}
+      {showVipTutorial && <VipTutorial onClose={() => setShowVipTutorial(false)} />}
       {showQRCodePage && <QRCodePage onClose={() => setShowQRCodePage(false)} />}
       <header className="w-full max-w-4xl mx-auto flex items-center justify-between mb-8">
         <div className="flex-1"></div>

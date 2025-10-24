@@ -1,12 +1,13 @@
 import React from 'react';
-import { XCircleIcon } from './IconComponents';
+import { XCircleIcon, QuestionMarkCircleIcon } from './IconComponents';
 
 interface VIPPageProps {
   onClose: () => void;
   onPurchaseClick: () => void;
+  onShowTutorial: () => void;
 }
 
-const VIPPage: React.FC<VIPPageProps> = ({ onClose, onPurchaseClick }) => {
+const VIPPage: React.FC<VIPPageProps> = ({ onClose, onPurchaseClick, onShowTutorial }) => {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
@@ -94,6 +95,16 @@ const VIPPage: React.FC<VIPPageProps> = ({ onClose, onPurchaseClick }) => {
           >
             ກົດສັ່ງຊື້
           </button>
+        </div>
+        
+        <div className="text-center mt-4">
+            <button 
+                onClick={onShowTutorial}
+                className="flex items-center justify-center gap-2 mx-auto text-sm text-white/80 hover:text-white transition-colors"
+            >
+                <QuestionMarkCircleIcon className="w-5 h-5" />
+                <span>ຕ້ອງການຄວາມຊ່ວຍເຫຼືອບໍ? ກົດເບິ່ງວິທີການສັ່ງຊື້</span>
+            </button>
         </div>
       </div>
     </div>

@@ -4,6 +4,9 @@ export interface VocabularyWord {
   character: string;
   pinyin: string;
   translation: string;
+  partOfSpeech?: string;
+  exampleSentenceChinese?: string;
+  exampleSentenceLao?: string;
   audioUrl?: string;
 }
 
