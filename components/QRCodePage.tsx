@@ -21,13 +21,13 @@ const QRCodePage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+      className="fixed inset-0 z-50 overflow-y-auto bg-black/70 p-4 pt-12 pb-8"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
     >
       <div
-        className="relative w-full max-w-md rounded-2xl bg-white dark:bg-slate-800 p-6 shadow-2xl animate-fade-in"
+        className="relative w-full max-w-md mx-auto rounded-2xl bg-white dark:bg-slate-800 p-6 shadow-2xl animate-fade-in"
         onClick={(e) => e.stopPropagation()}
       >
         <button

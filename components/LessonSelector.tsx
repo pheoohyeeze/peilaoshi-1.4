@@ -79,7 +79,7 @@ const LessonSelector: React.FC<LessonSelectorProps> = ({ level, onSelectLesson, 
           const totalInLesson = lessonWords.length > 0 ? lessonWords.length : 1;
           const masteryPercentage = (masteredCount / totalInLesson) * 100;
           
-          const isVipRequired = level >= 4 && lesson > midpoint;
+          const isVipRequired = level >= 2 && lesson > midpoint;
           const isLocked = isVipRequired && !currentUser?.isVip;
           
           const handleLessonClick = () => {

@@ -373,7 +373,7 @@ const App: React.FC = () => {
   const vipModes: PracticeMode[] = ['ordering', 'building', 'scramble', 'conjunction', 'correction', 'writing'];
 
   const handlePracticeSelect = useCallback(async (mode: PracticeMode) => {
-      const isVipRequired = (selectedLevel && selectedLevel >= 4 && vipModes.includes(mode));
+      const isVipRequired = (selectedLevel && selectedLevel >= 2 && vipModes.includes(mode));
       if (isVipRequired && !currentUser?.isVip) {
         handleVipLockClick();
         return;
@@ -502,7 +502,7 @@ const App: React.FC = () => {
     ];
 
     const buttons = allModes.map(btn => {
-      const isVipRequired = (selectedLevel && selectedLevel >= 4 && vipModes.includes(btn.mode as PracticeMode));
+      const isVipRequired = (selectedLevel && selectedLevel >= 2 && vipModes.includes(btn.mode as PracticeMode));
       const isDisabled = isVipRequired && !currentUser?.isVip;
       return { ...btn, isDisabled };
     });
@@ -786,9 +786,10 @@ const App: React.FC = () => {
     return <p className="text-slate-500 dark:text-slate-400">ບໍ່ມີຄຳສັບໃນບົດຮຽນນີ້.</p>;
   }
 
+  const isCenteringNeeded = isLoading || isPracticeLoading || !currentUser || (!selectedLevel && searchQuery.trim().length === 0);
 
   return (
-    <div className="min-h-screen bg-gray-100 text-slate-800 dark:bg-slate-900 dark:text-slate-200 flex flex-col items-center p-4 font-sans">
+    <div className="min-h-screen bg-gray-100 text-slate-800 dark:bg-slate-900 dark:text-slate-200 flex flex-col p-4 font-sans">
       {showCameraView && <CameraView onClose={handleCloseCamera} />}
       {showProgressView && selectedLevel && currentUser && !currentUser.isAdmin && (
           <ProgressView 
@@ -882,7 +883,7 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      <main className="w-full max-w-4xl mx-auto flex-grow flex items-center justify-center">
+      <main className={`w-full max-w-4xl mx-auto flex-grow ${isCenteringNeeded ? 'flex flex-col items-center justify-center' : ''}`}>
         {renderMainContent()}
       </main>
 
