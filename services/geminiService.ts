@@ -73,7 +73,7 @@ export const generateTranslationChoiceQuiz = (
 
   const questions: TranslationChoiceQuestion[] = lessonWords.map(word => {
     const correctAnswer = word.translation;
-    
+
     // Get 3 incorrect options from the rest of the lesson's words
     const incorrectOptions = lessonWords
       .filter(w => w.character !== word.character)
@@ -82,7 +82,7 @@ export const generateTranslationChoiceQuiz = (
     // Shuffle and pick 3 unique incorrect options
     const shuffledIncorrect = shuffleArray(incorrectOptions);
     const selectedIncorrect = [...new Set(shuffledIncorrect)].slice(0, 3);
-    
+
     // Combine correct and incorrect options and shuffle them
     const options = shuffleArray([correctAnswer, ...selectedIncorrect]);
 
@@ -111,7 +111,7 @@ export const generateWordBuildingQuiz = (
     .filter(word => word.character && word.character.length > 1) // Only use multi-character words
     .map(word => {
       const correctChars = word.character.split('');
-      
+
       const distractors = shuffleArray(allCharsInLesson)
         .filter(char => !correctChars.includes(char))
         .slice(0, 2); // Add 2 distractors, like in the screenshot
@@ -128,7 +128,7 @@ export const generateWordBuildingQuiz = (
   if (questions.length === 0) {
     return { questions: [] };
   }
-  
+
   return {
     questions: shuffleArray(questions),
   };
@@ -148,14 +148,14 @@ export const generateMatchingQuiz = (
 
   // Shuffle all lesson words once to randomize the rounds each time
   const shuffledWords = shuffleArray(lessonWords);
-  
+
   const rounds: VocabularyWord[][] = [];
   for (let i = 0; i < NUMBER_OF_ROUNDS; i++) {
     const startIndex = i * WORDS_PER_ROUND;
     const endIndex = startIndex + WORDS_PER_ROUND;
     rounds.push(shuffledWords.slice(startIndex, endIndex));
   }
-  
+
   return {
     rounds,
   };
@@ -174,10 +174,10 @@ export const getNumberOfLessons = (level: HSKLevel): number => {
 // Fetch a fixed set of vocabulary for a specific lesson
 export const fetchHSKVocabularyForLesson = async (level: HSKLevel, lesson: number): Promise<VocabularyWord[]> => {
   const wordsForLevel = HSK_VOCABULARY[level] || [];
-  
+
   const startIndex = (lesson - 1) * WORDS_PER_LESSON;
   const endIndex = startIndex + WORDS_PER_LESSON;
-  
+
   // Return a fixed slice for the given lesson.
   return Promise.resolve(wordsForLevel.slice(startIndex, endIndex));
 };
@@ -188,6 +188,74 @@ export const generatePracticeExercise = async (
     mode: PracticeMode,
     level: HSKLevel
 ): Promise<SentenceExample | ErrorCorrectionExercise | SentenceScrambleExercise | WritingExercise | SentenceOrderingExercise | ConjunctionExercise | null> => {
+    
+    // For HSK4 & HSK5, use local example sentences, but use Gemini API to segment them into words/phrases.
+    if (mode === 'scramble' && (level === 4 || level === 5)) {
+        if (word.exampleSentenceChinese && word.exampleSentenceChinese.length > 1) {
+            const sentence = word.exampleSentenceChinese;
+            
+            const prompt = `Please segment the following Chinese sentence into an array of meaningful words or short phrases. The final punctuation mark must be included as a separate item in the array. Do not join the punctuation with the last word. Sentence: "${sentence}"`;
+            
+            const responseSchema = {
+                type: Type.ARRAY,
+                items: { type: Type.STRING },
+                description: 'An array of words/phrases from the sentence, including punctuation as a separate item.'
+            };
+
+            try {
+                const response = await ai.models.generateContent({
+                    model: 'gemini-2.5-flash',
+                    contents: prompt,
+                    config: {
+                        responseMimeType: 'application/json',
+                        responseSchema: responseSchema,
+                    },
+                });
+
+                if (!response.text) {
+                     throw new Error('API did not return segmented words.');
+                }
+
+                const parts = safeJsonParse(response.text) as string[];
+
+                let scrambledWords = shuffleArray(parts);
+
+                // Ensure the scrambled version isn't accidentally correct.
+                let attempt = 0;
+                while (scrambledWords.join('') === parts.join('') && attempt < 5) {
+                    scrambledWords = shuffleArray(parts);
+                    attempt++;
+                }
+
+                const exercise: SentenceScrambleExercise = {
+                    correctSentence: sentence,
+                    scrambledWords: scrambledWords,
+                };
+                return exercise;
+
+            } catch (error) {
+                console.error(`Error segmenting sentence for HSK${level} scramble:`, error);
+                throw new Error(`Failed to generate exercise. The API returned an error during sentence segmentation.`);
+            }
+
+        } else {
+            // If no local example sentence is available.
+            throw new Error('ບໍ່ມີປະໂຫຍກຕົວຢ່າງສຳລັບຄຳສັບນີ້ໃນຂໍ້ມູນທ້ອງຖິ່ນ.');
+        }
+    }
+
+    // Use local example sentences for HSK 1 through 5
+    if (mode === 'example' && level <= 5) {
+        if (word.exampleSentenceChinese && word.exampleSentenceLao) {
+            return Promise.resolve({
+                sentence: word.exampleSentenceChinese,
+                translation: word.exampleSentenceLao,
+            });
+        } else {
+            // Fallback error if local data is missing for some reason.
+            throw new Error('ບໍ່ມີປະໂຫຍກຕົວຢ່າງສຳລັບຄຳສັບນີ້ໃນຂໍ້ມູນທ້ອງຖິ່ນ.');
+        }
+    }
 
     if (mode === 'ordering') {
         // HSK 4 Sentence Ordering is a specific test format. We'll use local data for this.
@@ -199,7 +267,7 @@ export const generatePracticeExercise = async (
             throw new Error('Sentence ordering exercises are only available for HSK 4.');
         }
     }
-    
+
     let prompt: string;
     let responseSchema: any;
 
@@ -335,7 +403,7 @@ export const getSentenceFeedback = async (word: VocabularyWord, sentence: string
                 responseSchema: responseSchema,
             },
         });
-        
+
         if (response.text) {
             return safeJsonParse(response.text);
         }
@@ -354,7 +422,7 @@ export const getEssayFeedback = async (level: HSKLevel, essay: string, words: Vo
     1. Check if all the required words were used correctly.
     2. Check for grammatical errors and awkward phrasing.
     3. Provide overall constructive feedback in Lao. The feedback should be encouraging. If there are major errors, suggest improvements. If it's well-written, give praise.`;
-    
+
      const responseSchema = {
         type: Type.OBJECT,
         properties: {
@@ -372,7 +440,7 @@ export const getEssayFeedback = async (level: HSKLevel, essay: string, words: Vo
                 responseSchema: responseSchema,
             },
         });
-        
+
         if (response.text) {
              return safeJsonParse(response.text);
         }
@@ -433,7 +501,7 @@ export const identifyCharactersInImage = async (base64ImageData: string): Promis
 
         if (response.text) {
             const identifiedWords = safeJsonParse(response.text) as VocabularyWord[];
-            
+
             const resultsWithLevel: SearchResultWord[] = identifiedWords
                 .map(word => {
                     const level = findWordLevel(word.character);
@@ -504,7 +572,7 @@ export const identifyObjectInImage = async (base64ImageData: string): Promise<Se
                 return [result];
             } else {
                 // It's not an HSK word, but the user still wants to see it.
-                const result: SearchResultWord = { ...identifiedWord, level: null, audioUrl: `https://fanyi.baidu.com/gettts?lan=zh&text=${encodeURIComponent(identifiedWord.character)}&spd=3&source=web` };
+                const result: SearchResultWord = { ...identifiedWord, level: null, audioUrl: `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=${encodeURIComponent(identifiedWord.character)}&tl=zh-CN` };
                 return [result];
             }
         }
@@ -513,4 +581,4 @@ export const identifyObjectInImage = async (base64ImageData: string): Promise<Se
         console.error('Error identifying object in image:', error);
         throw new Error('ບໍ່ສາມາດກວດຫາວັດຖຸໄດ້. API ເກີດຂໍ້ຜິດພາດ.');
     }
-};
+}
