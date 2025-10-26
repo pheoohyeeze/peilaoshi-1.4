@@ -2,7 +2,7 @@
 import type { VocabularyWord } from '../types';
 
 export const HSK1_WORDS: VocabularyWord[] = [
-   { "character": "爱", "pinyin": "ài", "partOfSpeech": "v.", "translation": "ຮັກ, ມັກ", "exampleSentenceChinese": "妈妈,我爱你。 / 我爱吃米饭。", "exampleSentenceLao": "ແມ່, ລູກຮັກແມ່. / ຂ້ອຍມັກກິນເຂົ້າ.", "audioUrl": "https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=爱&tl=zh-CN" },
+   { "character": "爱", "pinyin": "ài", "partOfSpeech": "v.", "translation": "ຮັກ, ມັກ", "exampleSentenceChinese": "妈妈,我爱你。 / 我爱吃米饭。", "exampleSentenceLao": "ແມ່, ລູກຮັກແມ່. / ຂ້ອຍມັກກິນເຂົ້າ.", "audioUrl": "https://fanyi.baidu.com/gettts?lan=zh&text=%E7%88%B1&spd=3&source=web" },
   { "character": "八", "pinyin": "bā", "partOfSpeech": "num.", "translation": "ແປດ", "exampleSentenceChinese": "他儿子今年八岁了。", "exampleSentenceLao": "ລູກຊາຍຂອງລາວປີນີ້ອາຍຸແປດປີແລ້ວ.", "audioUrl": "https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=八&tl=zh-CN" },
   { "character": "爸爸", "pinyin": "bàba", "partOfSpeech": "n.", "translation": "ພໍ່", "exampleSentenceChinese": "我爸爸是医生。", "exampleSentenceLao": "ພໍ່ຂອງຂ້ອຍແມ່ນໝໍ.", "audioUrl": "https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=爸爸&tl=zh-CN" },
   { "character": "杯子", "pinyin": "bēizi", "partOfSpeech": "n.", "translation": "ຈອກ, ແກ້ວ", "exampleSentenceChinese": "杯子里有茶。", "exampleSentenceLao": "ໃນຈອກມີຊາ.", "audioUrl": "https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=杯子&tl=zh-CN" },

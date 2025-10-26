@@ -188,74 +188,6 @@ export const generatePracticeExercise = async (
     mode: PracticeMode,
     level: HSKLevel
 ): Promise<SentenceExample | ErrorCorrectionExercise | SentenceScrambleExercise | WritingExercise | SentenceOrderingExercise | ConjunctionExercise | null> => {
-    
-    // For HSK4 & HSK5, use local example sentences, but use Gemini API to segment them into words/phrases.
-    if (mode === 'scramble' && (level === 4 || level === 5)) {
-        if (word.exampleSentenceChinese && word.exampleSentenceChinese.length > 1) {
-            const sentence = word.exampleSentenceChinese;
-            
-            const prompt = `Please segment the following Chinese sentence into an array of meaningful words or short phrases. The final punctuation mark must be included as a separate item in the array. Do not join the punctuation with the last word. Sentence: "${sentence}"`;
-            
-            const responseSchema = {
-                type: Type.ARRAY,
-                items: { type: Type.STRING },
-                description: 'An array of words/phrases from the sentence, including punctuation as a separate item.'
-            };
-
-            try {
-                const response = await ai.models.generateContent({
-                    model: 'gemini-2.5-flash',
-                    contents: prompt,
-                    config: {
-                        responseMimeType: 'application/json',
-                        responseSchema: responseSchema,
-                    },
-                });
-
-                if (!response.text) {
-                     throw new Error('API did not return segmented words.');
-                }
-
-                const parts = safeJsonParse(response.text) as string[];
-
-                let scrambledWords = shuffleArray(parts);
-
-                // Ensure the scrambled version isn't accidentally correct.
-                let attempt = 0;
-                while (scrambledWords.join('') === parts.join('') && attempt < 5) {
-                    scrambledWords = shuffleArray(parts);
-                    attempt++;
-                }
-
-                const exercise: SentenceScrambleExercise = {
-                    correctSentence: sentence,
-                    scrambledWords: scrambledWords,
-                };
-                return exercise;
-
-            } catch (error) {
-                console.error(`Error segmenting sentence for HSK${level} scramble:`, error);
-                throw new Error(`Failed to generate exercise. The API returned an error during sentence segmentation.`);
-            }
-
-        } else {
-            // If no local example sentence is available.
-            throw new Error('ບໍ່ມີປະໂຫຍກຕົວຢ່າງສຳລັບຄຳສັບນີ້ໃນຂໍ້ມູນທ້ອງຖິ່ນ.');
-        }
-    }
-
-    // Use local example sentences for HSK 1 through 5
-    if (mode === 'example' && level <= 5) {
-        if (word.exampleSentenceChinese && word.exampleSentenceLao) {
-            return Promise.resolve({
-                sentence: word.exampleSentenceChinese,
-                translation: word.exampleSentenceLao,
-            });
-        } else {
-            // Fallback error if local data is missing for some reason.
-            throw new Error('ບໍ່ມີປະໂຫຍກຕົວຢ່າງສຳລັບຄຳສັບນີ້ໃນຂໍ້ມູນທ້ອງຖິ່ນ.');
-        }
-    }
 
     if (mode === 'ordering') {
         // HSK 4 Sentence Ordering is a specific test format. We'll use local data for this.
@@ -572,7 +504,7 @@ export const identifyObjectInImage = async (base64ImageData: string): Promise<Se
                 return [result];
             } else {
                 // It's not an HSK word, but the user still wants to see it.
-                const result: SearchResultWord = { ...identifiedWord, level: null, audioUrl: `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=${encodeURIComponent(identifiedWord.character)}&tl=zh-CN` };
+                const result: SearchResultWord = { ...identifiedWord, level: null, audioUrl: `https://fanyi.baidu.com/gettts?lan=zh&text=${encodeURIComponent(identifiedWord.character)}&spd=3&source=web` };
                 return [result];
             }
         }
