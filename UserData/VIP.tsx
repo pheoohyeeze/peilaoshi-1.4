@@ -114,6 +114,46 @@ export const VIP_USERS = [
         vipExpiryDate: '2026-01-19',    
         devices: [],
     },
+    //9
+   {
+        username: 'Kelan',
+        userID: 'vip009',
+        email: 'onvilaiyortkhankham@gmail.com',
+        phone: '2057755128',
+        password: '22001122',
+        isVip: true,
+        orderId: '',
+        vipPurchaseDate: '2025-10-28',
+        vipExpiryDate: '2026-01-28',    
+        devices: [],
+    },
+    //10
+   {
+        username: 'Mxck',
+        userID: 'vip010',
+        email: 'anousoneans821@gmail.com',
+        phone: '13118490816',
+        password: 'Ans155939?',
+        isVip: true,
+        orderId: '',
+        vipPurchaseDate: '2025-10-28',
+        vipExpiryDate: '2026-01-28',    
+        devices: [],
+    },
+    //11
+   {
+        username: 'Pavinna',
+        userID: 'vip011',
+        email: 'pavinnarsaochantha457@gmail.com',
+        phone: '13036500713',
+        password: 'pooy251729',
+        isVip: true,
+        orderId: '',
+        vipPurchaseDate: '2025-10-28',
+        vipExpiryDate: '2026-01-28',    
+        devices: [],
+    },
+
 
 
 ];
