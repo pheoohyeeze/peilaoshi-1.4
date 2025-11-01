@@ -31,7 +31,7 @@ const PracticeHeader: React.FC<{ title: string; word?: VocabularyWord; onClose: 
              <button onClick={onClose} className="absolute left-0 p-2 rounded-full bg-slate-200 text-slate-600 hover:bg-brand-primary hover:text-white dark:bg-slate-600 dark:text-slate-200 dark:hover:text-white transition-colors" aria-label="ກັບໄປທີ່ບັດຄຳສັບ">
                 <ArrowLeftIcon className="w-5 h-5" />
             </button>
-            <h2 className="text-2xl font-bold text-brand-primary">{title}</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-brand-primary">{title}</h2>
         </div>
         {word?.character && (
             <div className="flex items-center gap-2">
@@ -379,7 +379,7 @@ const PracticeView: React.FC<PracticeViewProps> = ({ mode, word, data, level, le
                     <div className="w-full p-6 bg-white dark:bg-slate-800 rounded-2xl shadow-lg">
                         <PracticeHeader title="ຕົວຢ່າງປະໂຫຍກ" onClose={onClose} word={word}/>
                         <div className="bg-slate-50 dark:bg-slate-700 p-6 rounded-lg space-y-4">
-                            <p className="text-3xl text-slate-800 dark:text-slate-100 text-center font-semibold tracking-wide">{exercise.sentence}</p>
+                            <p className="text-2xl sm:text-3xl text-slate-800 dark:text-slate-100 text-center font-semibold tracking-wide">{exercise.sentence}</p>
                             <p className="text-lg text-slate-500 dark:text-slate-400 text-center border-t border-slate-200 dark:border-slate-600 pt-4">{exercise.translation}</p>
                         </div>
                     </div>
@@ -400,7 +400,7 @@ const PracticeView: React.FC<PracticeViewProps> = ({ mode, word, data, level, le
                         <PracticeHeader title="ຊອກຫາຂໍ້ຜິດພາດ" onClose={onClose} word={word}/>
                         <div className="bg-slate-50 dark:bg-slate-700 p-6 rounded-lg space-y-4">
                            <p className="text-slate-500 dark:text-slate-400 text-center mb-2">ຊອກຫາຂໍ້ຜິດພາດໃນປະໂຫຍກລຸ່ມນີ້:</p>
-                           <p className="text-3xl text-amber-600 text-center font-semibold tracking-wide">"{exercise.incorrectSentence}"</p>
+                           <p className="text-2xl sm:text-3xl text-amber-600 text-center font-semibold tracking-wide">"{exercise.incorrectSentence}"</p>
                            
                            {!showCorrection && (
                                 <div className="text-center pt-4">
@@ -433,12 +433,12 @@ const PracticeView: React.FC<PracticeViewProps> = ({ mode, word, data, level, le
                         <PracticeHeader title="ລຽງປະໂຫຍກ" onClose={onClose} word={word}/>
                         <div className="bg-slate-50 dark:bg-slate-700 p-6 rounded-lg space-y-4">
                              <p className="text-slate-500 dark:text-slate-400 text-center mb-2">ຄລິກໃສ່ຄຳສັບເພື່ອລຽງປະໂຫຍກໃຫ້ຖືກຕ້ອງ:</p>
-                             <div className="p-4 mb-4 min-h-[6rem] bg-slate-100 dark:bg-slate-800 rounded-md text-2xl text-slate-800 dark:text-slate-100 flex items-center justify-center text-center tracking-wide">
+                             <div className="p-4 mb-4 min-h-[6rem] bg-slate-100 dark:bg-slate-800 rounded-md text-xl sm:text-2xl text-slate-800 dark:text-slate-100 flex items-center justify-center text-center tracking-wide">
                                 {userAnswer.join('')}
                              </div>
                              <div className="flex flex-wrap gap-3 justify-center">
                                 {exercise.scrambledWords.map((wordPart, index) => (
-                                    <button key={index} onClick={() => handleScrambleWordClick(wordPart)} className="px-4 py-2 text-xl bg-white border border-slate-300 text-slate-700 rounded-md hover:bg-brand-primary hover:text-white hover:border-transparent dark:bg-slate-600 dark:border-slate-500 dark:text-slate-200 dark:hover:bg-brand-primary dark:hover:text-white transition-colors">
+                                    <button key={index} onClick={() => handleScrambleWordClick(wordPart)} className="px-4 py-2 text-lg sm:text-xl bg-white border border-slate-300 text-slate-700 rounded-md hover:bg-brand-primary hover:text-white hover:border-transparent dark:bg-slate-600 dark:border-slate-500 dark:text-slate-200 dark:hover:bg-brand-primary dark:hover:text-white transition-colors">
                                         {wordPart}
                                     </button>
                                 ))}
@@ -613,18 +613,18 @@ const PracticeView: React.FC<PracticeViewProps> = ({ mode, word, data, level, le
                         <div className="bg-slate-50 dark:bg-slate-700 p-8 rounded-lg space-y-6">
                             <div className="text-center">
                                 <p className="text-slate-500 dark:text-slate-400 text-lg mb-2">ຄຳສັບໃດແປວ່າ:</p>
-                                <h3 className="text-5xl font-bold text-slate-800 dark:text-slate-100">{question.word.character}</h3>
-                                <p className="text-2xl text-slate-500 dark:text-slate-400">{question.word.pinyin}</p>
+                                <h3 className="text-4xl sm:text-5xl font-bold text-slate-800 dark:text-slate-100">{question.word.character}</h3>
+                                <p className="text-xl sm:text-2xl text-slate-500 dark:text-slate-400">{question.word.pinyin}</p>
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 {question.options.map(option => {
                                     const isCorrect = option === question.correctAnswer;
                                     const isSelected = selectedChoice === option;
-                                    let buttonClass = 'p-4 text-lg bg-white border-2 border-slate-300 text-slate-700 rounded-lg hover:bg-slate-100 dark:bg-slate-600 dark:border-slate-500 dark:text-slate-200 dark:hover:bg-slate-500 transition-colors';
+                                    let buttonClass = 'p-4 text-base sm:text-lg bg-white border-2 border-slate-300 text-slate-700 rounded-lg hover:bg-slate-100 dark:bg-slate-600 dark:border-slate-500 dark:text-slate-200 dark:hover:bg-slate-500 transition-colors';
                                     if(choiceStatus !== 'idle' && isCorrect) {
-                                        buttonClass = 'p-4 text-lg bg-green-200 border-2 border-green-500 text-green-800 rounded-lg dark:bg-green-900/50 dark:text-green-300';
+                                        buttonClass = 'p-4 text-base sm:text-lg bg-green-200 border-2 border-green-500 text-green-800 rounded-lg dark:bg-green-900/50 dark:text-green-300';
                                     } else if (choiceStatus !== 'idle' && isSelected && !isCorrect) {
-                                        buttonClass = 'p-4 text-lg bg-red-200 border-2 border-red-500 text-red-800 rounded-lg dark:bg-red-900/50 dark:text-red-300';
+                                        buttonClass = 'p-4 text-base sm:text-lg bg-red-200 border-2 border-red-500 text-red-800 rounded-lg dark:bg-red-900/50 dark:text-red-300';
                                     }
                                     return (
                                         <button key={option} onClick={() => handleChoiceSelect(option)} disabled={choiceStatus !== 'idle'} className={buttonClass}>

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import type { User } from '../services/adminService';
 import { 
-    XCircleIcon, LockClosedIcon, UserIcon, EnvelopeIcon, PhoneIcon, CrownIcon, DevicePhoneMobileIcon, TrashIcon
+    XCircleIcon, LockClosedIcon, UserIcon, EnvelopeIcon, PhoneIcon, CrownIcon, DevicePhoneMobileIcon, TrashIcon,
+    ArrowRightOnRectangleIcon
 } from './IconComponents';
 
 type CurrentUser = (Omit<User, 'password'> & { isAdmin: boolean; });
@@ -9,12 +10,13 @@ type CurrentUser = (Omit<User, 'password'> & { isAdmin: boolean; });
 interface ProfilePageProps {
   user: CurrentUser;
   onClose: () => void;
+  onLogout: () => void;
   onUpdatePassword: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; message: string; }>;
   onDeregisterDevice: (deviceId: string) => void;
   currentDeviceId: string;
 }
 
-const ProfilePage: React.FC<ProfilePageProps> = ({ user, onClose, onUpdatePassword, onDeregisterDevice, currentDeviceId }) => {
+const ProfilePage: React.FC<ProfilePageProps> = ({ user, onClose, onLogout, onUpdatePassword, onDeregisterDevice, currentDeviceId }) => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -146,6 +148,16 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, onClose, onUpdatePasswo
                         {isSubmitting ? 'ກຳລັງບັນທຶກ...' : 'ບັນທຶກການປ່ຽນແປງ'}
                     </button>
                 </form>
+            </div>
+             {/* Logout Section */}
+            <div className="mt-4">
+                 <button 
+                    onClick={onLogout}
+                    className="w-full flex justify-center items-center gap-2 py-3 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:bg-red-600 dark:hover:bg-red-700"
+                >
+                    <ArrowRightOnRectangleIcon className="w-5 h-5" />
+                    <span>ອອກຈາກລະບົບ</span>
+                </button>
             </div>
         </div>
       </div>

@@ -244,17 +244,15 @@ export const generatePracticeExercise = async (
         }
     }
 
-    // Use local example sentences for HSK 1 through 5
-    if (mode === 'example' && level <= 5) {
+    // Use local example sentences if available for ANY level
+    if (mode === 'example') {
         if (word.exampleSentenceChinese && word.exampleSentenceLao) {
             return Promise.resolve({
                 sentence: word.exampleSentenceChinese,
                 translation: word.exampleSentenceLao,
             });
-        } else {
-            // Fallback error if local data is missing for some reason.
-            throw new Error('ບໍ່ມີປະໂຫຍກຕົວຢ່າງສຳລັບຄຳສັບນີ້ໃນຂໍ້ມູນທ້ອງຖິ່ນ.');
         }
+        // If no local data, fall through to Gemini API call below
     }
 
     if (mode === 'ordering') {

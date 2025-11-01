@@ -1,14 +1,14 @@
 import React from 'react';
 
 export const ArrowLeftIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className={className}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
   </svg>
 );
 
 export const ArrowRightIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className={className}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
   </svg>
 );
 
@@ -182,12 +182,15 @@ export const DevicePhoneMobileIcon: React.FC<{ className?: string }> = ({ classN
     </svg>
 );
 
-// Fix: Add `title` prop to CrownIcon to allow passing a title for tooltips.
 export const CrownIcon: React.FC<{ className?: string; title?: string }> = ({ className, title }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={className}>
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
         {title && <title>{title}</title>}
-        <path d="M10 2a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 2zM5.373 4.428a.75.75 0 01.256 1.03l-.11.168-1.5 2.25a.75.75 0 01-1.292-.866l1.5-2.25a.75.75 0 011.146-.35zM14.627 4.428a.75.75 0 011.146.35l1.5 2.25a.75.75 0 01-1.292.866l-1.5-2.25-.11-.168a.75.75 0 01.256-1.03zM3.5 10a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zM14.5 10a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75z" />
-        <path fillRule="evenodd" d="M3 13.5a1 1 0 011-1h12a1 1 0 011 1v2.5a1 1 0 01-1 1h-3.5a.75.75 0 00-.75.75v.75a.75.75 0 01-1.5 0v-.75a.75.75 0 00-.75-.75H4a1 1 0 01-1-1v-2.5z" clipRule="evenodd" />
+        <path d="M5 19.5H19V17.5H5V19.5Z" />
+        <path d="M11 17.5V10.5H13V17.5H11Z" />
+        <path d="M17.65 10.5H6.35C5.93 10.5 5.62 10.11 5.72 9.71L7.6 2.84C7.75 2.24 8.35 1.85 8.97 1.85H15.03C15.65 1.85 16.25 2.24 16.4 2.84L18.28 9.71C18.38 10.11 18.07 10.5 17.65 10.5Z" />
+        <circle cx="12" cy="3.5" r="1.5" />
+        <circle cx="7" cy="6.5" r="1.5" />
+        <circle cx="17" cy="6.5" r="1.5" />
     </svg>
 );
 
@@ -196,4 +199,104 @@ export const CameraIcon: React.FC<{ className?: string }> = ({ className }) => (
         <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.776 48.776 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
         <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
     </svg>
+);
+
+export const BellIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.31 5.072A23.847 23.847 0 008.143 17.082m6.714 0a3 3 0 11-5.455 0m5.455 0v-2.145" />
+    </svg>
+);
+
+export const HomeIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={className}>
+        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+    </svg>
+);
+
+export const ChevronDownIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+    </svg>
+);
+
+export const SwapHorizontalIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className={className}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 7.5h9m-9 9h9m-9-4.5h9m-9 0L6 10.5m1.5 1.5L6 13.5m9-1.5l1.5 1.5m-1.5-1.5l1.5-1.5" />
+    </svg>
+);
+
+export const ListCogIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className={className}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h8.25M8.25 12h5.25m-5.25 5.25h3M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 17.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 12.75l-2.625 2.625m2.625-2.625L16.875 10.5m2.625 2.25-2.625-2.625m2.625 2.625L19.5 15m-2.625-2.25l2.625-2.625m-2.625 2.625L15 12.75m1.875 2.25-1.875-1.875m1.875 1.875-1.875 1.875" />
+  </svg>
+);
+
+export const ClipboardChecklistIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className={className}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6H8.25A2.25 2.25 0 006 8.25v7.5A2.25 2.25 0 008.25 18h7.5A2.25 2.25 0 0018 15.75v-7.5A2.25 2.25 0 0015.75 6z" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6V5.25A2.25 2.25 0 0114.25 3h-4.5A2.25 2.25 0 017.5 5.25V6" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2.25 2.25L15 9" />
+  </svg>
+);
+
+export const DuplicateIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className={className}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M9 15.75l3-3m0 0l3 3m-3-3v12" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M18 9.75V6.375c0-.621-.504-1.125-1.125-1.125H7.125A1.125 1.125 0 006 6.375v9.75c0 .621.504 1.125 1.125 1.125H9" />
+  </svg>
+);
+
+export const TranslateIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className={className}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 21l5.25-11.625M21 21l-5.25-11.625m-7.5 0l-1.685-3.71a1.94 1.94 0 01.38-2.128 1.94 1.94 0 012.91-.382l1.686 3.71M21 21L12 12M3.75 4.5h16.5" />
+    </svg>
+);
+
+export const NetworkIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className={className}>
+    <circle cx="12" cy="5" r="2" />
+    <circle cx="5" cy="12" r="2" />
+    <circle cx="19" cy="12" r="2" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 7v3m-5 2h10M6.5 13.5l4-4m7 4l-4-4" />
+  </svg>
+);
+
+export const PromoMegaphoneIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg className={className} viewBox="0 0 120 100" xmlns="http://www.w3.org/2000/svg" style={{ overflow: 'visible' }}>
+    {/* Dollar Coin */}
+    <circle cx="20" cy="20" r="10" fill="#FBBF24" stroke="#F59E0B" strokeWidth="2"/>
+    <text x="20" y="24" textAnchor="middle" fill="#F59E0B" fontSize="12" fontWeight="bold">$</text>
+    {/* Percent Icon */}
+    <circle cx="95" cy="15" r="10" fill="#A78BFA" stroke="#8B5CF6" strokeWidth="2"/>
+    <text x="95" y="20" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">%</text>
+    {/* Bag Icon */}
+    <g transform="translate(100, 70) scale(15)">
+       <path fill="#34D399" d="M16 2H8C4.69 2 2 4.69 2 8v12c0 3.31 2.69 6 6 6h8c3.31 0 6-2.69 6-6V8c0-3.31-2.69-6-6-6zm-2 14h-4v-2h4v2zm0-4h-4V8h4v4z"></path>
+    </g>
+    {/* Main Megaphone */}
+    <path d="M95 30 C 95 25, 90 20, 85 20 L 50,25 L 30,35 L 30,65 L 50,75 L 85,80 C 90 80, 95 75, 95 70 Z" fill="#F472B6" stroke="#EC4899" strokeWidth="3"/>
+    <path d="M30 40 L20 40 C15 40, 10 45, 10 50 C 10 55, 15 60, 20 60 L 30 60 Z" fill="#A78BFA" stroke="#8B5CF6" strokeWidth="3"/>
+  </svg>
+);
+
+export const PromoTrophyIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg className={className} viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style={{ overflow: 'visible' }}>
+    <g transform="translate(50, 50)">
+      <path d="M0-35 C 25-35 35-20 35 0 C 35 20 25 35 0 35 C -25 35 -35 20 -35 0 C -35 -20 -25 -35 0 -35Z" fill="#FBBF24" stroke="#F59E0B" strokeWidth="4" />
+      <path d="M-35 0 h -10 a 10 10 0 0 1 0 -20 h 10" fill="none" stroke="#FBBF24" strokeWidth="4" />
+      <path d="M35 0 h 10 a 10 10 0 0 0 0 -20 h -10" fill="none" stroke="#FBBF24" strokeWidth="4" />
+      <path d="M-15 35 v 10 h 30 v -10" fill="none" stroke="#D97706" strokeWidth="4" />
+      <path d="M-25 55 h 50" stroke="#D97706" strokeWidth="4" strokeLinecap="round" />
+      {/* Decorations */}
+      <circle cx="-10" cy="-10" r="5" fill="#8B5CF6" />
+      <text x="-10" y="-7" fontSize="8" fill="white" textAnchor="middle" fontWeight="bold">%</text>
+      <circle cx="10" cy="-10" r="5" fill="#8B5CF6" />
+      <text x="10" y="-7" fontSize="8" fill="white" textAnchor="middle" fontWeight="bold">%</text>
+      <circle cx="0" cy="10" r="6" fill="#8B5CF6" />
+      <text x="0" y="13" fontSize="9" fill="white" textAnchor="middle" fontWeight="bold">%</text>
+    </g>
+  </svg>
 );

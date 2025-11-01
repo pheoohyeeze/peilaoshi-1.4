@@ -8,7 +8,6 @@ import { HSK_LEVELS, WORDS_PER_LESSON } from './constants';
 import { HSK_VOCABULARY } from './data/hsk-vocabulary';
 import HSKLevelSelector from './components/HSKLevelSelector';
 import LessonSelector from './components/LessonSelector';
-import Flashcard from './components/Flashcard';
 import LoadingSpinner from './components/LoadingSpinner';
 import PracticeView from './components/PracticeView';
 import Auth from './components/Auth';
@@ -20,12 +19,13 @@ import ActivityHistoryView from './components/ActivityHistoryView';
 import AdminDashboard from './components/AdminDashboard';
 import ProfilePage from './components/ProfilePage';
 import { 
-    ArrowLeftIcon, ArrowRightIcon, BookOpenIcon, 
-    LightBulbIcon, ShieldExclamationIcon, ArrowsRightLeftIcon, 
-    ChatBubbleLeftRightIcon, PencilIcon, QueueListIcon, 
-    MagnifyingGlassIcon, XCircleIcon, SpeakerWaveIcon, QuestionMarkCircleIcon, SquaresPlusIcon, LinkIcon,
-    PuzzlePieceIcon, SunIcon, MoonIcon, ArrowRightOnRectangleIcon, ChartBarIcon, ClockIcon, LockClosedIcon, CrownIcon, UserIcon,
-    CameraIcon
+    ArrowLeftIcon, ArrowRightIcon, 
+    MagnifyingGlassIcon, XCircleIcon, SpeakerWaveIcon, 
+    SunIcon, MoonIcon, ArrowRightOnRectangleIcon, CrownIcon, UserIcon,
+    CameraIcon, BellIcon, HomeIcon, ChevronDownIcon,
+    SwapHorizontalIcon, ListCogIcon, LinkIcon, ClipboardChecklistIcon, 
+    DuplicateIcon, TranslateIcon, NetworkIcon, LockClosedIcon, BookOpenIcon,
+    ChatBubbleLeftRightIcon, PencilIcon, PromoMegaphoneIcon, PromoTrophyIcon
 } from './components/IconComponents';
 
 const playAudio = (audioUrl?: string) => {
@@ -137,7 +137,53 @@ const App: React.FC = () => {
   const [showCameraView, setShowCameraView] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [cameraScanResults, setCameraScanResults] = useState<SearchResultWord[] | null>(null);
+  const [isCardFlipped, setIsCardFlipped] = useState(false);
 
+  const promotions = [
+      {
+        line1: 'VIP 12 ເດືອນ',
+        line2: 'ລາຄາ 480.000 ກີບ',
+      },
+      {
+        line1: 'VIP 3 ເດືອນ',
+        line2: 'ລາຄາ 150.000 ກີບ',
+      },
+      {
+        line1: 'ຊື້ປຶ້ມຄຳສັບ ຫຼື ໄຟລ໌ປຶ້ມແບບຮຽນ',
+        line2: 'ແຖມ VIP 1 ເດືອນ',
+      },
+      {
+        line1: 'ສັ່ງຊື້ປື້ມແບບຮຽນ ແລະ ຄຳສັບ HSK1-6 ໄດ້ທີ:',
+        line2: 'WeChat: Pheoohyeeze33 ຫຼື Whatsaap: 2096473810',
+        isOriginal: true,
+      },
+    ];
+
+    const [currentPromotion, setCurrentPromotion] = useState(0);
+
+    useEffect(() => {
+        // This effect should only run on the homepage
+        if (!selectedLevel && !searchQuery) {
+            const timer = setInterval(() => {
+                setCurrentPromotion((prev) => (prev + 1) % promotions.length);
+            }, 3000); // Auto-slide every 3 seconds
+
+            return () => clearInterval(timer); // Cleanup on component unmount or view change
+        }
+    }, [selectedLevel, searchQuery, promotions.length]);
+
+  const PlusLogo = () => (
+    <div
+      className="flex items-center gap-1 text-yellow-500 cursor-pointer"
+      onClick={() => setShowVipPage(true)}
+      role="button"
+      tabIndex={0}
+      aria-label="ເປີດໜ້າ VIP"
+    >
+        <CrownIcon className="w-6 h-6" />
+        <span className="font-bold text-xl tracking-wider">PLUS</span>
+    </div>
+  );
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -149,6 +195,10 @@ const App: React.FC = () => {
       localStorage.theme = 'light';
     }
   }, [theme]);
+  
+  useEffect(() => {
+    setIsCardFlipped(false);
+  }, [currentIndex]);
 
   useEffect(() => {
     const username = sessionStorage.getItem('hsk-user');
@@ -358,6 +408,7 @@ const App: React.FC = () => {
         setSelectedLesson(null);
         setVocabulary([]);
         setError(null);
+        setSearchQuery('');
     }
 
     const backToLessonSelector = () => {
@@ -370,15 +421,7 @@ const App: React.FC = () => {
 
   const currentWord = vocabulary[currentIndex];
   
-  const vipModes: PracticeMode[] = ['ordering', 'building', 'scramble', 'conjunction', 'correction', 'writing'];
-
   const handlePracticeSelect = useCallback(async (mode: PracticeMode) => {
-      const isVipRequired = (selectedLevel && selectedLevel >= 2 && vipModes.includes(mode));
-      if (isVipRequired && !currentUser?.isVip) {
-        handleVipLockClick();
-        return;
-      }
-      
     if ((!currentWord && !['ordering', 'translation_choice', 'build_from_translation', 'matching', 'conjunction'].includes(mode)) || !selectedLevel) return;
 
     if (mode === 'building') {
@@ -487,42 +530,31 @@ const App: React.FC = () => {
     setError(null);
   };
 
-  const practiceButtons = useMemo(() => {
-    const allModes = [
-      { mode: 'example', label: 'ຕົວຢ່າງປະໂຫຍກ', icon: LightBulbIcon },
-      { mode: 'correction', label: 'ຊອກຫາຂໍ້ຜິດພາດ', icon: ShieldExclamationIcon },
-      { mode: 'scramble', label: 'ລຽງປະໂຫຍກ', icon: ArrowsRightLeftIcon },
-      { mode: 'building', label: 'ສ້າງປະໂຫຍກ', icon: ChatBubbleLeftRightIcon },
-      { mode: 'translation_choice', label: 'ເລືອກຄຳແປ', icon: QuestionMarkCircleIcon },
-      { mode: 'build_from_translation', label: 'ປະກອບຄຳສັບ', icon: SquaresPlusIcon },
-      { mode: 'matching', label: 'ຈັບຄູ່ຄຳສັບ', icon: LinkIcon },
-      { mode: 'conjunction', label: 'ເຊື່ອມປະໂຫຍກ', icon: PuzzlePieceIcon },
-      { mode: 'ordering', label: '排列顺序', icon: QueueListIcon },
-      { mode: 'writing', label: 'ຝຶກຂຽນ', icon: PencilIcon },
+  const practiceModes = useMemo(() => {
+    const allModes: ({ 
+        mode: PracticeMode; 
+        label: string; 
+        icon: React.FC<{className?: string;}>; 
+        levels?: HSKLevel[];
+        isVipOnly?: boolean; 
+    })[] = [
+      { mode: 'example', label: 'ຕົວຢ່າງປະໂຫຍກ', icon: BookOpenIcon },
+      { mode: 'scramble', label: 'ລຽງຄຳສັບ', icon: SwapHorizontalIcon, isVipOnly: true },
+      { mode: 'ordering', label: 'ລຽງປະໂຫຍກ ABC', icon: ListCogIcon, levels: [4], isVipOnly: true },
+      { mode: 'conjunction', label: 'ເຊື່ອມປະໂຫຍກ', icon: LinkIcon, isVipOnly: true },
+      { mode: 'correction', label: 'ຫາຂໍ້ຜິດພາດ', icon: ClipboardChecklistIcon, isVipOnly: true },
+      { mode: 'building', label: 'ສ້າງປະໂຫຍກ', icon: ChatBubbleLeftRightIcon, isVipOnly: true },
+      { mode: 'writing', label: 'ຝຶກການຂຽນ', icon: PencilIcon, levels: [5], isVipOnly: true },
+      { mode: 'build_from_translation', label: 'ປະກອບຄຳສັບ', icon: DuplicateIcon },
+      { mode: 'translation_choice', label: 'ເລືອກຄຳແປ', icon: TranslateIcon, isVipOnly: true },
+      { mode: 'matching', label: 'ຈັບຄູ່ຄຳສັບ', icon: NetworkIcon },
     ];
-
-    const buttons = allModes.map(btn => {
-      const isVipRequired = (selectedLevel && selectedLevel >= 2 && vipModes.includes(btn.mode as PracticeMode));
-      const isDisabled = isVipRequired && !currentUser?.isVip;
-      return { ...btn, isDisabled };
-    });
-
-    // Filtering logic based on level
-    if (selectedLevel && selectedLevel < 3) {
-      return buttons.filter(b => b.mode !== 'conjunction' && b.mode !== 'ordering' && b.mode !== 'writing');
-    }
-    if (selectedLevel === 3) {
-       return buttons.filter(b => b.mode !== 'ordering' && b.mode !== 'writing');
-    }
-    if (selectedLevel === 4) {
-        return buttons.filter(b => b.mode !== 'writing');
-    }
-    if (selectedLevel === 5 || selectedLevel === 6) {
-        return buttons.filter(b => b.mode !== 'ordering');
-    }
     
-    return buttons;
-  }, [selectedLevel, currentUser]);
+    if (!selectedLevel) return [];
+    
+    return allModes.filter(m => !m.levels || m.levels.includes(selectedLevel));
+  }, [selectedLevel]);
+
 
   const CameraView: React.FC<{ onClose: () => void; }> = ({ onClose }) => {
     const videoRef = React.useRef<HTMLVideoElement>(null);
@@ -648,148 +680,303 @@ const App: React.FC = () => {
 
   const renderMainContent = () => {
     if (!currentUser) {
-        return <Auth onLoginSuccess={handleLoginSuccess} />;
+        return (
+          <div className="flex items-center justify-center min-h-screen p-4">
+            <Auth onLoginSuccess={handleLoginSuccess} />
+          </div>
+        );
     }
     
     if (currentUser.isAdmin) {
-        return <AdminDashboard onLogout={handleLogout} />;
+        return (
+          <div className="p-4">
+            <AdminDashboard onLogout={handleLogout} />
+          </div>
+        );
     }
 
     if (!selectedLevel) {
       return (
-          <div className="w-full max-w-2xl mx-auto flex flex-col">
-              <div className="relative mb-6 flex items-center gap-2">
-                  <div className="relative flex-grow">
-                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                        <MagnifyingGlassIcon className="w-5 h-5 text-slate-400 dark:text-slate-500" />
-                    </span>
-                    <input
-                        type="search"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="ຄົ້ນຫາຄຳສັບ HSK (ຕົວອັກສອນ, ພິນອິນ, ຄຳແປ)..."
-                        className="w-full py-3 pl-10 pr-10 text-lg text-slate-800 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100 dark:placeholder-slate-400"
-                        aria-label="Search HSK Vocabulary"
-                    />
-                    {searchQuery && (
-                        <button
-                            onClick={() => setSearchQuery('')}
-                            className="absolute inset-y-0 right-0 flex items-center pr-3"
-                            aria-label="Clear search"
-                        >
-                            <XCircleIcon className="w-6 h-6 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors" />
-                        </button>
-                    )}
-                  </div>
-                   <button
-                        onClick={() => setShowCameraView(true)}
-                        className="p-3 bg-white border border-slate-300 rounded-lg text-slate-600 hover:bg-brand-primary hover:text-white dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 dark:hover:text-white transition-colors flex-shrink-0"
-                        aria-label="Scan with camera"
-                    >
-                        <CameraIcon className="w-6 h-6" />
-                    </button>
-              </div>
+        <div className="w-full max-w-md md:max-w-2xl lg:max-w-4xl mx-auto flex flex-col">
+          {/* Header */}
+          <header className="grid grid-cols-3 items-center px-4 pt-4">
+            <div className="w-7"></div> {/* Spacer */}
+            <div className="justify-self-center">
+                <PlusLogo />
+            </div>
+            <div className="relative justify-self-end">
+              <BellIcon className="w-7 h-7 text-gray-500 dark:text-gray-400" />
+              <span className="absolute top-0.5 right-0.5 block h-2 w-2 rounded-full bg-red-500 border-2 border-white dark:border-slate-900"></span>
+            </div>
+          </header>
 
-              <div className="flex-grow">
-                  {searchQuery.trim().length > 0 ? (
-                      <SearchResults results={searchResults} onWordSelect={handleGoToLessonFromSearch} />
-                  ) : (
-                      <HSKLevelSelector onSelectLevel={handleLevelSelect} />
-                  )}
-              </div>
+          {/* Search Bar */}
+          <div className="px-4 my-4">
+            <div className="relative flex items-center bg-gray-100 dark:bg-slate-800 rounded-full h-14 shadow-sm">
+              <span className="absolute left-4 pointer-events-none">
+                <MagnifyingGlassIcon className="w-6 h-6 text-gray-400 dark:text-slate-500" />
+              </span>
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="ຄົ້ນຫາຄຳສັບ HSK"
+                className="bg-transparent w-full h-full pl-12 pr-20 focus:outline-none text-gray-700 dark:text-slate-200"
+                aria-label="Search HSK Vocabulary"
+              />
+              <button onClick={() => setShowCameraView(true)} className="absolute right-2 p-2 bg-purple-200 dark:bg-purple-800/50 rounded-full">
+                 <CameraIcon className="w-6 h-6 text-purple-600 dark:text-purple-300" />
+              </button>
+            </div>
           </div>
+          
+          {searchQuery.trim().length > 0 ? (
+            <div className="px-4"><SearchResults results={searchResults} onWordSelect={handleGoToLessonFromSearch} /></div>
+          ) : (
+            <>
+              {/* Promotion Slider */}
+                <div className="px-4 mb-6">
+                    <div className="relative w-full h-48 md:h-56 rounded-2xl shadow-lg overflow-hidden cursor-pointer" onClick={() => setShowVipPage(true)}>
+                        {/* Sliding Wrapper */}
+                        <div 
+                            className="flex h-full transition-transform duration-700 ease-in-out"
+                            style={{ transform: `translateX(-${currentPromotion * 100}%)` }}
+                        >
+                            {promotions.map((promo, index) => (
+                                <div key={index} className="w-full h-full flex-shrink-0 bg-blue-600 text-white p-5 flex flex-col justify-center items-center relative text-center">
+                                    {!promo.isOriginal ? (
+                                        <>
+                                            <PromoMegaphoneIcon className="absolute w-24 h-24 top-0 left-0 -mt-4 -ml-4 transform -rotate-12 opacity-80" />
+                                            <PromoTrophyIcon className="absolute w-24 h-24 bottom-0 left-0 -mb-6 -ml-4 opacity-80" />
+                                            <PromoMegaphoneIcon className="absolute w-24 h-24 top-0 right-0 -mt-4 -mr-4 transform rotate-12 scale-x-[-1] opacity-80" />
+                                            <PromoTrophyIcon className="absolute w-24 h-24 bottom-0 right-0 -mb-6 -mr-4 transform scale-x-[-1] opacity-80" />
+
+                                            <h3 className="text-2xl md:text-3xl font-bold z-10">ໂປຣໂມຊັ່ນພິເສດ</h3>
+                                            <p className="text-3xl md:text-4xl font-bold mt-2 z-10">{promo.line1}</p>
+                                            <p className="text-2xl md:text-3xl font-semibold mt-1 z-10">{promo.line2}</p>
+                                        </>
+                                    ) : (
+                                        <div className="z-10">
+                                            <p className="font-semibold text-lg md:text-xl leading-relaxed">{promo.line1}</p>
+                                            <p className="font-semibold text-base md:text-lg leading-relaxed mt-2">{promo.line2}</p>
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                        
+                        {/* Pagination Dots */}
+                        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-2 z-20">
+                            {promotions.map((_, index) => (
+                                <button
+                                    key={index}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setCurrentPromotion(index);
+                                    }}
+                                    className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${currentPromotion === index ? 'bg-white scale-125' : 'bg-white/50'}`}
+                                    aria-label={`Go to slide ${index + 1}`}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                </div>
+              
+              <HSKLevelSelector onSelectLevel={handleLevelSelect} />
+            </>
+          )}
+        </div>
       );
     }
 
-    if (isLoading) return <LoadingSpinner message={`ກຳລັງໂຫຼດ...`} />;
+    if (isLoading) return <div className="flex items-center justify-center pt-24"><LoadingSpinner message={`ກຳລັງໂຫຼດ...`} /></div>;
     
     if (error) return (
-        <div className="text-center bg-red-100 border border-red-400 text-red-700 p-6 rounded-lg dark:bg-red-900/20 dark:border-red-600 dark:text-red-300">
-            <h3 className="text-2xl font-semibold mb-2">ເກີດຂໍ້ຜິດພາດ</h3>
-            <p className="mb-4">{error}</p>
-            <button
-              onClick={selectedLesson ? backToLessonSelector : backToLevelSelector}
-              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-            >
-              ກັບໄປ
-            </button>
+        <div className="p-4 max-w-md mx-auto">
+            <div className="text-center bg-red-100 border border-red-400 text-red-700 p-6 rounded-lg dark:bg-red-900/20 dark:border-red-600 dark:text-red-300">
+                <h3 className="text-2xl font-semibold mb-2">ເກີດຂໍ້ຜິດພາດ</h3>
+                <p className="mb-4">{error}</p>
+                <button
+                  onClick={selectedLesson ? backToLessonSelector : backToLevelSelector}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                >
+                  ກັບໄປ
+                </button>
+            </div>
         </div>
     );
 
     if (!selectedLesson) {
-        return <LessonSelector level={selectedLevel} onSelectLesson={handleLessonSelect} onBack={backToLevelSelector} progress={progress} currentUser={currentUser} onVipLockClick={handleVipLockClick} />;
+        return (
+            <div className="w-full max-w-md md:max-w-2xl lg:max-w-4xl mx-auto flex flex-col">
+                 <header className="w-full grid grid-cols-3 items-center px-4 pt-4">
+                    <div className="justify-self-start">
+                        <button
+                            onClick={backToLevelSelector}
+                            className="p-2 bg-gray-100 dark:bg-slate-700 rounded-full text-slate-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors"
+                            aria-label="ກັບໄປ"
+                        >
+                            <ArrowLeftIcon className="w-6 h-6" />
+                        </button>
+                    </div>
+                    <div className="justify-self-center">
+                        <PlusLogo />
+                    </div>
+                    <div className="justify-self-end relative">
+                        <BellIcon className="w-7 h-7 text-gray-500 dark:text-gray-400" />
+                        <span className="absolute top-0.5 right-0.5 block h-2 w-2 rounded-full bg-red-500 border-2 border-white dark:border-slate-900"></span>
+                    </div>
+                </header>
+
+                <div className="px-4 my-4">
+                    <div className="relative flex items-center bg-white dark:bg-slate-800 rounded-full h-14 shadow-sm border border-slate-200 dark:border-slate-700">
+                        <span className="absolute left-4 pointer-events-none">
+                            <MagnifyingGlassIcon className="w-6 h-6 text-gray-400 dark:text-slate-500" />
+                        </span>
+                        <input
+                          type="search"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          placeholder="ຄົ້ນຫາຄຳສັບ HSK"
+                          className="bg-transparent w-full h-full pl-12 pr-20 focus:outline-none text-gray-700 dark:text-slate-200"
+                          aria-label="Search HSK Vocabulary"
+                        />
+                        <button onClick={() => setShowCameraView(true)} className="absolute right-2 p-2 bg-purple-200 dark:bg-purple-800/50 rounded-full">
+                           <CameraIcon className="w-6 h-6 text-purple-600 dark:text-purple-300" />
+                        </button>
+                    </div>
+                </div>
+
+                {searchQuery.trim().length > 0 ? (
+                    <div className="px-4 pb-4"><SearchResults results={searchResults} onWordSelect={handleGoToLessonFromSearch} /></div>
+                ) : (
+                    <LessonSelector 
+                        level={selectedLevel} 
+                        onSelectLesson={handleLessonSelect} 
+                        onBack={backToLevelSelector} 
+                        progress={progress} 
+                        currentUser={currentUser} 
+                        onVipLockClick={handleVipLockClick} 
+                    />
+                )}
+            </div>
+        );
     }
 
-    if (isPracticeLoading) return <LoadingSpinner message="ກຳລັງສ້າງແບບຝຶກຫັດ..." />;
+    if (isPracticeLoading) return <div className="flex items-center justify-center pt-24"><LoadingSpinner message="ກຳລັງສ້າງແບບຝຶກຫັດ..." /></div>;
 
     if (practiceMode && selectedLesson) {
       return (
-        <PracticeView
-          mode={practiceMode}
-          word={currentWord} 
-          data={practiceData}
-          level={selectedLevel}
-          lesson={selectedLesson}
-          onSentenceSubmit={handleSentenceSubmit}
-          onEssaySubmit={handleEssaySubmit}
-          onClose={backToFlashcards}
-          onNewExercise={handlePracticeSelect}
-          onUpdateProgress={handleUpdateProgress}
-          onLogActivity={handleLogActivity}
-          currentUser={currentUser.username}
-        />
+        <div className="max-w-md md:max-w-2xl mx-auto p-4">
+            <PracticeView
+              mode={practiceMode}
+              word={currentWord} 
+              data={practiceData}
+              level={selectedLevel}
+              lesson={selectedLesson}
+              onSentenceSubmit={handleSentenceSubmit}
+              onEssaySubmit={handleEssaySubmit}
+              onClose={backToFlashcards}
+              onNewExercise={handlePracticeSelect}
+              onUpdateProgress={handleUpdateProgress}
+              onLogActivity={handleLogActivity}
+              currentUser={currentUser.username}
+            />
+        </div>
       );
     }
 
     if (currentWord) {
       return (
-        <div className="w-full flex flex-col items-center">
-            <div className="w-full mb-6">
-              <Flashcard word={currentWord} />
-            </div>
-
-            <div className="flex items-center justify-between w-full mb-6">
-              <button onClick={handlePrev} className="p-4 rounded-full bg-white text-slate-600 shadow-md hover:bg-brand-primary hover:text-white transition-colors dark:bg-slate-700 dark:text-slate-300 dark:hover:text-white" aria-label="ຄຳກ່ອນໜ້າ"><ArrowLeftIcon className="w-6 h-6" /></button>
-              <p className="text-lg font-medium text-slate-500 dark:text-slate-400">{currentIndex + 1} / {vocabulary.length}</p>
-              <button onClick={handleNext} className="p-4 rounded-full bg-white text-slate-600 shadow-md hover:bg-brand-primary hover:text-white transition-colors dark:bg-slate-700 dark:text-slate-300 dark:hover:text-white" aria-label="ຄຳຕໍ່ໄປ"><ArrowRightIcon className="w-6 h-6" /></button>
-            </div>
-
-            <div className="w-full border-t border-slate-200 dark:border-slate-700 pt-6">
-              <h3 className="text-center text-slate-500 dark:text-slate-400 mb-4 font-semibold">ຝຶກຝົນຄຳສັບນີ້</h3>
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-                {practiceButtons.map(({mode, label, icon: Icon, isDisabled}) => (
-                  <button 
-                    key={mode} 
-                    onClick={() => handlePracticeSelect(mode as PracticeMode)} 
-                    className={`relative flex flex-col items-center justify-center text-center gap-2 p-3 bg-white text-slate-600 rounded-lg shadow-sm transition-colors text-sm dark:bg-slate-800 dark:text-slate-300 ${
-                      isDisabled
-                        ? 'opacity-50'
-                        : 'hover:bg-slate-100 hover:text-brand-primary dark:hover:bg-slate-700 dark:hover:text-brand-light'
-                    }`}
-                  >
-                    <Icon className="w-6 h-6" />
-                    <span>{label}</span>
-                    {isDisabled && (
-                        <div className="absolute top-1.5 right-1.5 flex items-center gap-1">
-                            <span className="font-bold text-yellow-500 dark:text-yellow-400 text-xs">VIP</span>
-                            <LockClosedIcon className="w-4 h-4 text-yellow-500 dark:text-yellow-400" />
+        <div className="w-full max-w-md md:max-w-2xl mx-auto flex flex-col">
+            <header className="w-full grid grid-cols-3 items-center p-4">
+                <div className="justify-self-start">
+                    <button onClick={backToLessonSelector} className="flex items-center gap-1 text-slate-700 dark:text-slate-200 font-semibold text-lg">
+                        HSK {selectedLevel} <ChevronDownIcon className="w-5 h-5" />
+                    </button>
+                </div>
+                <div className="justify-self-center">
+                    <PlusLogo />
+                </div>
+                <div className="justify-self-end relative">
+                    <BellIcon className="w-7 h-7 text-gray-500 dark:text-gray-400" />
+                    <span className="absolute top-0.5 right-0.5 block h-2 w-2 rounded-full bg-red-500 border-2 border-white dark:border-slate-900"></span>
+                </div>
+            </header>
+            <main className="w-full flex-grow p-4">
+                <div
+                    className="w-full h-64 md:h-80 [perspective:1000px] cursor-pointer"
+                    onClick={() => setIsCardFlipped(!isCardFlipped)}
+                    role="button"
+                    tabIndex={0}
+                    aria-live="polite"
+                    aria-label={isCardFlipped ? `Back: ${currentWord.pinyin}, ${currentWord.translation}` : `Front: ${currentWord.character}, tap to reveal.`}
+                >
+                    <div className={`relative w-full h-full transition-transform duration-700 ease-in-out [transform-style:preserve-3d] ${isCardFlipped ? '[transform:rotateY(180deg)]' : ''}`}>
+                        {/* Front Face */}
+                        <div className="absolute w-full h-full bg-blue-600 rounded-2xl p-6 text-white text-center shadow-lg flex flex-col justify-center [backface-visibility:hidden]">
+                            <h1 className="text-7xl md:text-9xl font-bold font-sans">{currentWord.character}</h1>
+                            <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center">
+                                <button onClick={(e) => { e.stopPropagation(); handlePrev(); }} className="bg-green-500/80 rounded-full p-2 hover:bg-green-500 transition-transform hover:scale-110 active:scale-95" aria-label="Previous word"><ArrowLeftIcon className="w-6 h-6" /></button>
+                                <div>
+                                    <p className="font-semibold">{currentIndex + 1} / {vocabulary.length}</p>
+                                    <p className="text-sm text-blue-200">ແຕະເພື່ອເປີດເຜີຍ</p>
+                                </div>
+                                <button onClick={(e) => { e.stopPropagation(); handleNext(); }} className="bg-green-500/80 rounded-full p-2 hover:bg-green-500 transition-transform hover:scale-110 active:scale-95" aria-label="Next word"><ArrowRightIcon className="w-6 h-6" /></button>
+                            </div>
                         </div>
-                    )}
-                  </button>
-                ))}
-              </div>
-            </div>
+                        
+                        {/* Back Face */}
+                        <div className="absolute w-full h-full bg-blue-600 rounded-2xl p-6 text-white text-center shadow-lg flex flex-col justify-center items-center [transform:rotateY(180deg)] [backface-visibility:hidden]">
+                             <div className="space-y-4">
+                                <p className="text-4xl md:text-5xl font-semibold tracking-wide">{currentWord.pinyin}</p>
+                                <p className="text-3xl md:text-4xl font-medium">{currentWord.translation}</p>
+                            </div>
+                            <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center">
+                                <button onClick={(e) => { e.stopPropagation(); handlePrev(); }} className="bg-green-500/80 rounded-full p-2 hover:bg-green-500 transition-transform hover:scale-110 active:scale-95" aria-label="Previous word"><ArrowLeftIcon className="w-6 h-6" /></button>
+                                <div>
+                                    <p className="font-semibold">{currentIndex + 1} / {vocabulary.length}</p>
+                                    <p className="text-sm text-blue-200">ແຕະເພື່ອເຊື່ອງ</p>
+                                </div>
+                                <button onClick={(e) => { e.stopPropagation(); handleNext(); }} className="bg-green-500/80 rounded-full p-2 hover:bg-green-500 transition-transform hover:scale-110 active:scale-95" aria-label="Next word"><ArrowRightIcon className="w-6 h-6" /></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 mt-8">
+                    {practiceModes.map(({ mode, label, icon: Icon, isVipOnly }) => {
+                        const isLocked = isVipOnly && selectedLevel && selectedLevel >= 2 && !currentUser?.isVip;
+                        return (
+                            <button
+                                key={mode}
+                                onClick={() => isLocked ? handleVipLockClick() : handlePracticeSelect(mode as PracticeMode)}
+                                className="relative bg-blue-100/70 dark:bg-slate-800 rounded-2xl p-3 flex flex-col items-center justify-center text-center gap-2 aspect-square transition-transform shadow-sm hover:shadow-lg data-[locked=true]:hover:shadow-sm data-[locked=true]:hover:-translate-y-0 hover:-translate-y-1"
+                                data-locked={isLocked}
+                                aria-label={isLocked ? `${label} (ຕ້ອງການ VIP)` : label}
+                            >
+                                <Icon className={`w-10 h-10 md:w-12 md:h-12 text-slate-800 dark:text-slate-200 mb-1 ${isLocked ? 'opacity-30' : ''}`} />
+                                <span className={`text-sm md:text-base font-semibold text-slate-700 dark:text-slate-300 leading-tight ${isLocked ? 'opacity-50' : ''}`}>{label}</span>
+                                {isLocked && (
+                                    <div className="absolute inset-0 bg-black/20 dark:bg-black/40 rounded-2xl flex items-center justify-center">
+                                        <CrownIcon className="w-9 h-9 text-yellow-400 opacity-90" />
+                                    </div>
+                                )}
+                            </button>
+                        );
+                    })}
+                </div>
+            </main>
         </div>
       );
     }
 
-    return <p className="text-slate-500 dark:text-slate-400">ບໍ່ມີຄຳສັບໃນບົດຮຽນນີ້.</p>;
+    return <p className="text-slate-500 dark:text-slate-400 text-center p-4">ບໍ່ມີຄຳສັບໃນບົດຮຽນນີ້.</p>;
   }
 
-  const isCenteringNeeded = isLoading || isPracticeLoading || !currentUser || (!selectedLevel && searchQuery.trim().length === 0);
-
   return (
-    <div className="min-h-screen bg-gray-100 text-slate-800 dark:bg-slate-900 dark:text-slate-200 flex flex-col p-4 font-sans">
+    <div className="min-h-screen bg-white text-slate-800 dark:bg-slate-900 font-sans antialiased">
       {showCameraView && <CameraView onClose={handleCloseCamera} />}
       {showProgressView && selectedLevel && currentUser && !currentUser.isAdmin && (
           <ProgressView 
@@ -812,6 +999,7 @@ const App: React.FC = () => {
             onUpdatePassword={handleUpdatePassword}
             onDeregisterDevice={handleDeregisterDevice}
             currentDeviceId={getDeviceId()}
+            onLogout={handleLogout}
         />
       )}
       {showVipPage && (
@@ -826,82 +1014,23 @@ const App: React.FC = () => {
       )}
       {showVipTutorial && <VipTutorial onClose={() => setShowVipTutorial(false)} />}
       {showQRCodePage && <QRCodePage onClose={() => setShowQRCodePage(false)} />}
-      <header className="w-full max-w-4xl mx-auto flex items-center justify-between mb-8">
-        <div className="flex-1"></div>
-        <div className="flex-1 flex justify-center items-center gap-4">
-          <BookOpenIcon className="w-12 h-12 text-brand-primary"/>
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
-            ຮຽນຄຳສັບ HSK ດ້ວຍ AI
-          </h1>
-        </div>
-        <div className="flex-1 flex justify-end items-center gap-2 sm:gap-4">
-          {currentUser && !currentUser.isAdmin && selectedLevel && (
-            <>
-              <button
-                  onClick={() => setShowActivityHistory(true)}
-                  className="p-2 rounded-full bg-slate-200/50 dark:bg-slate-700/50 text-slate-600 dark:text-blue-300 hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
-                  aria-label="ສະແດງປະຫວັດການຮຽນ"
-              >
-                  <ClockIcon className="w-6 h-6" />
-              </button>
-              <button
-                  onClick={() => setShowProgressView(true)}
-                  className="p-2 rounded-full bg-slate-200/50 dark:bg-slate-700/50 text-slate-600 dark:text-blue-300 hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
-                  aria-label="ສະແດງຄວາມຄືບໜ້າ"
-              >
-                  <ChartBarIcon className="w-6 h-6" />
-              </button>
-            </>
-          )}
-          <button
-              onClick={toggleTheme}
-              className="p-2 rounded-full bg-slate-200/50 dark:bg-slate-700/50 text-slate-600 dark:text-yellow-300 hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
-              aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
-          >
-              {theme === 'light' ? <MoonIcon className="w-6 h-6" /> : <SunIcon className="w-6 h-6" />}
-          </button>
-          {currentUser && !currentUser.isAdmin && (
-            <div className="flex items-center gap-2">
-                <span className="hidden sm:inline text-slate-600 dark:text-slate-300">ສະບາຍດີ, {currentUser.username}</span>
-                {currentUser.isVip && <CrownIcon className="w-5 h-5 text-yellow-500" title={`ສະມາຊິກ VIP ໝົດອາຍຸວັນທີ: ${currentUser.vipExpiryDate}`} />}
-                 <button
-                    onClick={() => setShowProfilePage(true)}
-                    className="p-2 rounded-full bg-slate-200/50 dark:bg-slate-700/50 text-slate-600 dark:text-blue-300 hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
-                    aria-label="ເບິ່ງໂປຣໄຟລ໌"
-                >
-                    <UserIcon className="w-6 h-6" />
-                </button>
-                <button
-                    onClick={handleLogout}
-                    className="p-2 rounded-full bg-slate-200/50 dark:bg-slate-700/50 text-slate-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors"
-                    aria-label="ອອກຈາກລະບົບ"
-                >
-                    <ArrowRightOnRectangleIcon className="w-6 h-6" />
-                </button>
-            </div>
-          )}
-        </div>
-      </header>
 
-      <main className={`w-full max-w-4xl mx-auto flex-grow ${isCenteringNeeded ? 'flex flex-col items-center justify-center' : ''}`}>
+      <main className="pb-24 px-2 sm:px-0">
         {renderMainContent()}
       </main>
 
-       <footer className="w-full max-w-4xl mx-auto text-center mt-8 py-4">
-         {currentUser && !currentUser.isAdmin && selectedLevel && (
-            <button
-              onClick={selectedLesson ? backToLessonSelector : backToLevelSelector}
-              className="px-6 py-2 bg-white border border-slate-300 rounded-lg hover:bg-slate-100 transition-colors text-slate-600 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-600"
-            >
-              {selectedLesson ? 'ປ່ຽນບົດຮຽນ' : 'ປ່ຽນລະດັບ HSK'}
-            </button>
-         )}
-         <p className="text-slate-1800 dark:text-slate-400 text-sm mt-4">ຕິດຕາມ tiktok: peilaoshi_ </p>
-         <p className="text-slate-1800 dark:text-slate-400 text-sm mt-4"> ສັ່ງຊື້ປື້ມແບບຮຽນ ແລະ ຄຳສັບ HSK1-6 ໄດ້ທີ: WeChat: Pheoohyeeze33 ຫຼື Whatsaap: 2096473810</p>
-         <p className="text-slate-1800 dark:text-slate-400 text-sm mt-4"> ຂໍຂອບໃຈທຸກທ່ານ </p>
-         
-
-      </footer>
+       {currentUser && !currentUser.isAdmin && (
+          <footer className="fixed bottom-0 left-0 right-0 h-20 bg-white/80 backdrop-blur-sm dark:bg-slate-800/80 border-t border-gray-200 dark:border-slate-700 z-40">
+                <div className="w-full h-full max-w-md mx-auto flex justify-around items-center">
+                    <button onClick={resetApp} className="flex flex-col items-center justify-center text-black dark:text-white">
+                        <HomeIcon className="w-7 h-7" />
+                    </button>
+                    <button onClick={() => setShowProfilePage(true)} className="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400">
+                        <UserIcon className="w-7 h-7" />
+                    </button>
+                </div>
+            </footer>
+        )}
     </div>
   );
 };
