@@ -153,6 +153,19 @@ export const VIP_USERS = [
         vipExpiryDate: '2026-01-28',    
         devices: [],
     },
+    //12
+   {
+        username: 'Lex',
+        userID: 'vip012',
+        email: 'callmesawat@gmail.com',
+        phone: '2091605668',
+        password: 'Tolex2006',
+        isVip: true,
+        orderId: '',
+        vipPurchaseDate: '2025-11-01',
+        vipExpiryDate: '2026-02-01',    
+        devices: [],
+    },
 
 
 
